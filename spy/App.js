@@ -17,8 +17,6 @@ const routes={MainMenu, Settings, GameMenu};
 
 export default class App extends Component {
     render() {
-      database().ref('users/004').set({name:'kek'})
-      .then(()=>console.log('complete'),()=>console.log('error'));
       return (
         <Router routes={routes} initialRoute="MainMenu"/>
       );

@@ -66,7 +66,7 @@ class GameMenu extends React.Component {
 				<View style={styles.Content}>
 					<ScrollView>
 						{Object.keys(this.state.tables).map((key, index) => {
-							return <TouchableOpacity style={styles.Table}>
+							return <TouchableOpacity key={index}style={styles.Table}>
 								<Text style={styles.Text}>Table {index + 1}</Text>
 							</TouchableOpacity>
 						})}
