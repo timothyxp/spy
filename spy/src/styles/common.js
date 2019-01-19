@@ -20,3 +20,4 @@ export const Game_AddTable_Width = 170;
 export const Game_AddTable_Height = 60;
 export const Game_Button_Background = '#17234b';
 export const Game_Content_Height = 380;
+export const Game_Button_Margin = 20;

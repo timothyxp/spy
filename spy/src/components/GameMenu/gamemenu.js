@@ -16,7 +16,8 @@ Menu_Button_Border_Width,
 Menu_Button_Border_Usual_Color,
 Menu_Button_Border_Radius,
 Game_AddTable_Width,
-Game_AddTable_Height} from '../../styles/common.js';
+Game_AddTable_Height,
+Game_Button_Margin} from '../../styles/common.js';
 
 import database from '../../firebase/firebase.js';
 
@@ -44,8 +45,12 @@ class GameMenu extends React.Component {
 		let tableRef = database().ref('tables');
 		let tableId=Math.floor(Math.random()*(1e9));
 
-		tableRef.push({
+		let NewTableRef = tableRef.push({
 			tableId:tableId
+		});
+		this.props.router.push.TableWait({
+			tableRef:NewTableRef,
+			tableNumber:Object.keys(this.state.tables).length+1
 		});
 	}
 
@@ -58,19 +63,21 @@ class GameMenu extends React.Component {
 						<Text style={styles.Text}>Back</Text>
 					</TouchableOpacity>
 				</View>
-				<TouchableOpacity style={styles.AddTable}
-				onPress={this.AddTable}>
-					<Text style={styles.Text_AddTable}>New</Text>
-					<Image source={require('../../images/newTable.png')}/>
-				</TouchableOpacity>
-				<View style={styles.Content}>
-					<ScrollView>
-						{Object.keys(this.state.tables).map((key, index) => {
-							return <TouchableOpacity key={index}style={styles.Table}>
-								<Text style={styles.Text}>Table {index + 1}</Text>
-							</TouchableOpacity>
-						})}
-					</ScrollView>
+				<View>
+					<TouchableOpacity style={styles.AddTable}
+					onPress={this.AddTable}>
+						<Text style={styles.Text_AddTable}>New</Text>
+						<Image source={require('../../images/newTable.png')}/>
+					</TouchableOpacity>
+					<View style={styles.ScrollView}>
+						<ScrollView>
+							{Object.keys(this.state.tables).map((key, index) => {
+								return <TouchableOpacity key={index}style={styles.Table}>
+									<Text style={styles.Text}>Table {index + 1}</Text>
+								</TouchableOpacity>
+							})}
+						</ScrollView>
+					</View>
 				</View>
 			</View>
 		);
@@ -87,9 +94,13 @@ const styles = StyleSheet.create({
 		justifyContent:'center'
 	},
 	Content:{
+		marginTop:Game_AddTable_Height+2*Menu_Button_Border_Width+5
+	}
+	ScrollView:{
 		backgroundColor:Game_Content_Background,
 		borderRadius:Game_Content_Border_Radius,
 		borderStyle:'solid',
+		minWidth:Game_Button_Margin*2+Menu_Button_Width+2*Menu_Button_Border_Width,
 		borderColor:Game_Content_Border_Color,
 		borderWidth:Game_Content_Border_Width,
 		height:Game_Content_Height,
@@ -135,10 +146,10 @@ const styles = StyleSheet.create({
 		borderWidth:Menu_Button_Border_Width,
 		borderColor:Menu_Button_Border_Usual_Color,
 		borderRadius:Menu_Button_Border_Radius,
-		marginLeft:20,
-		marginRight:20,
-		marginTop:20,
-		marginBottom:10
+		marginLeft:Game_Button_Margin,
+		marginRight:Game_Button_Margin,
+		marginTop:Game_Button_Margin,
+		marginBottom:Game_Button_Margin/2
 	},
 	Text:{
 		color:Menu_Text_Usual_Color,
