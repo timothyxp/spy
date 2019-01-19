@@ -12,7 +12,8 @@ Menu_Button_Width,
 Menu_Button_Heigth,
 Menu_Button_Border_Width,
 Menu_Button_Border_Radius,
-Menu_Content_Height} from '../../styles/common.js';
+Menu_Content_Height,
+Menu_Text_Size} from '../../styles/common.js';
 
 
 class MainMenu extends React.Component {
@@ -75,11 +76,11 @@ const styles=StyleSheet.create({
 	},
 	Text_Game:{
 		color:Menu_Text_Unusual_Color,
-		fontSize:22
+		fontSize: Menu_Text_Size
 	},
 	Text:{
 		color:Menu_Text_Usual_Color,
-		fontSize:22
+		fontSize: Menu_Text_Size
 	}
 });
 

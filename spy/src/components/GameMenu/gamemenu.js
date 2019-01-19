@@ -17,7 +17,8 @@ Menu_Button_Border_Usual_Color,
 Menu_Button_Border_Radius,
 Game_AddTable_Width,
 Game_AddTable_Height,
-Game_Button_Margin} from '../../styles/common.js';
+Game_Button_Margin,
+Menu_Text_Size} from '../../styles/common.js';
 
 import database from '../../firebase/firebase.js';
 
@@ -34,7 +35,6 @@ class GameMenu extends React.Component {
 
 		tableRef.on('value', snapshot => {
 			let items = snapshot.val();
-
 			this.setState({
 				tables:{...this.state.tables,...items}
 			});
@@ -50,7 +50,8 @@ class GameMenu extends React.Component {
 		});
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
-			tableNumber:Object.keys(this.state.tables).length+1
+			tableNumber:Object.keys(this.state.tables).length + 1,
+			tableId:tableId
 		});
 	}
 
@@ -63,7 +64,7 @@ class GameMenu extends React.Component {
 						<Text style={styles.Text}>Back</Text>
 					</TouchableOpacity>
 				</View>
-				<View>
+				<View style={styles.Content}>
 					<TouchableOpacity style={styles.AddTable}
 					onPress={this.AddTable}>
 						<Text style={styles.Text_AddTable}>New</Text>
@@ -94,8 +95,11 @@ const styles = StyleSheet.create({
 		justifyContent:'center'
 	},
 	Content:{
-		marginTop:Game_AddTable_Height+2*Menu_Button_Border_Width+5
-	}
+		marginTop:Game_AddTable_Height,
+		flex:1,
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
 	ScrollView:{
 		backgroundColor:Game_Content_Background,
 		borderRadius:Game_Content_Border_Radius,
@@ -153,11 +157,11 @@ const styles = StyleSheet.create({
 	},
 	Text:{
 		color:Menu_Text_Usual_Color,
-		fontSize:22
+		fontSize: Menu_Text_Size
 	},
 	Text_AddTable:{
 		color:Menu_Text_Usual_Color,
-		fontSize:22,
+		fontSize: Menu_Text_Size,
 		marginLeft:50,
 		marginRight:20
 	}
