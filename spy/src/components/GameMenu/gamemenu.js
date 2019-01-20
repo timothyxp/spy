@@ -46,23 +46,30 @@ class GameMenu extends React.Component {
 		let tableId=Math.floor(Math.random()*(1e9));
 
 		let NewTableRef = tableRef.push({
-			tableId:tableId
+			tableId:tableId,
+			size:5,
+			players:0
 		});
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
 			tableNumber:Object.keys(this.state.tables).length + 1,
 			tableId:tableId,
-			admin:true
+			admin:true,
+			size:5
 		});
 	}
 
 	GoToTable = (key, index, event) => {
 		event.preventDefault();
+		let table=this.state.tables[key];
+		if(table.size <= table.players)
+			return;
 		this.props.router.push.TableWait({
 			tableRef:database().ref('tables/'+key),
 			tableNumber:index+1,
-			tableId:this.state.tables[key].tableId,
-			admin:false
+			tableId:table.tableId,
+			admin:false,
+			size:table.size
 		});
 	}
 

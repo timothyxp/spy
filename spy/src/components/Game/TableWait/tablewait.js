@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, AsyncStorage, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, AsyncStorage, ScrollView, TouchableOpacity} from 'react-native';
 
 import {Menu_Background,
 Menu_Button_Unusual_Color,
@@ -19,7 +19,10 @@ Game_Content_Background,
 Game_Content_Border_Color,
 Game_Content_Border_Width,
 Game_Content_Border_Radius,
-Game_Button_Background} from '../../../styles/common.js'; 
+Game_Button_Background,
+Game_AddTable_Width,
+Game_AddTable_Height,
+Menu_Button_Border_Radius} from '../../../styles/common.js'; 
 
 import database from '../../../firebase/firebase.js';
 
@@ -28,7 +31,8 @@ class TableWait extends React.Component {
 		super();
 		this.state = {
 			userId:'none',
-			events:{}
+			places:5,
+			players:[]
 		}
 	}
 
@@ -45,9 +49,35 @@ class TableWait extends React.Component {
 		let wait=database().ref('wait/'+this.props.tableId);
 		wait.on('value', snapshot => {
 			let items = snapshot.val();
-			console.log(items);
+
+			let places = 5;
+			let players = new Set();
+			if(items) {
+				Object.keys(items).sort().forEach((key) => {
+					let item=items[key];
+					if(item.type === 'new') {
+						players.add(item.userId);
+					} else if(item.type === 'leave') {
+						players.delete(item.userId);
+					} else if(item.type === 'newPlace') {
+						places++;
+					} else if(item.type === 'erasePlace'){
+						places--;
+					}
+				});
+			}
+			if(!players.has(this.state.userId)){
+				this.props.router.pop();
+			}
+
+			let playersAll=Array.from(players);
+			for(let i=1; i <= places-players.size; i++) {
+				playersAll.push(-1);
+			}
+			console.log(playersAll);
 			this.setState({
-				events:{...items,...this.state.events}
+				places:places,
+				players:playersAll
 			});
 		});
 
@@ -65,20 +95,6 @@ class TableWait extends React.Component {
 		});
 	}
 
-	getPlayers() {
-		let players = new Set();
-		Object.keys(this.state.events).sort().forEach((key) => {
-			let item=this.state.events[key];
-			if(item.type === 'new') {
-				players.add(item.userId);
-			} else if(item.type === 'leave') {
-				players.delete(item.userId);
-			}
-		});
-		
-		return Array.from(players);
-	}
-
 	KickPlayer = (userId, event) => {
 		event.preventDefault();
 		let wait=database().ref('wait/'+this.props.tableId);
@@ -88,8 +104,17 @@ class TableWait extends React.Component {
 		});
 	}
 
+	AddPlace = () => {
+		if(this.state.places===10)
+			return;
+		let wait=database().ref('wait/'+this.props.tableId);
+		wait.push({
+			type:'newPlace'
+		});
+	}
+
 	render() {
-		let players = this.getPlayers();
+		let players = this.state.players;
 
 		return(
 			<View style={styles.TableWait}>
@@ -97,8 +122,13 @@ class TableWait extends React.Component {
 					<Text style={styles.TableText}>Table {this.props.tableNumber}</Text>
 				</View>
 				<View style={styles.Content}>
+					<TouchableOpacity style={styles.AddPlace}
+					onPress={this.AddPlace}>
+						<Text style={styles.Text_AddPlace}>New Place</Text>
+					</TouchableOpacity>
 					<View style={styles.PlayerList}>
-							{players.map((key,index)=>{
+						{players.map((key,index)=>{
+							if(key !== -1) {
 								return <View key={index} style={styles.Player}>
 									<Text style={styles.PlayerText}>User{key}</Text>
 									{this.props.admin && this.state.userId !== key?
@@ -106,7 +136,15 @@ class TableWait extends React.Component {
 									onPress={this.KickPlayer.bind(this,key)}>X</Text>
 									:<Text></Text>}
 								</View>
-							})}
+							} else {
+								return <View key={index} style={styles.PlayerNone}>
+								</View>
+							}
+						})}
+						<Text onPress={()=>database().ref('wait/'+this.props.tableId).push({
+						type:'new',
+						userId:Math.floor(Math.random()*1e9)
+						})}>NEw kekes</Text>
 					</View>
 				</View>
 			</View>
@@ -151,6 +189,23 @@ const styles=StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'column'
 	},
+	AddPlace:{
+		flexDirection:'row',
+		alignItems:'center',
+		justifyContent:'center',
+		backgroundColor:'green',
+		width:Game_AddTable_Width,
+		height:Game_AddTable_Height,
+		marginBottom:20,
+		borderStyle:'solid',
+		borderWidth:Menu_Button_Border_Width,
+		borderColor:'yellow',
+		borderRadius:Menu_Button_Border_Radius
+	},
+	Text_AddPlace:{
+		color:'black',
+		fontSize: Menu_Text_Size
+	},
 	Player:{
 		width:Menu_Button_Width,
 		height:Menu_Button_Heigth,
@@ -165,6 +220,17 @@ const styles=StyleSheet.create({
 	PlayerText:{
 		color: Menu_Text_Unusual_Color,
 		fontSize: Menu_Text_Size
+	},
+	PlayerNone:{
+		width:Menu_Button_Width,
+		height:Menu_Button_Heigth,
+		flexDirection: 'row',
+		alignItems:'center',
+		backgroundColor:'green',
+		justifyContent:'center',
+		borderStyle:'solid',
+		borderWidth:Menu_Button_Border_Width,
+		borderColor:Menu_Button_Border_Usual_Color
 	},
 	Kick:{
 		color:GameWait_PlayersList_Kick_Color,
