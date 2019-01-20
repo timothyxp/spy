@@ -51,7 +51,18 @@ class GameMenu extends React.Component {
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
 			tableNumber:Object.keys(this.state.tables).length + 1,
-			tableId:tableId
+			tableId:tableId,
+			admin:true
+		});
+	}
+
+	GoToTable = (key, index, event) => {
+		event.preventDefault();
+		this.props.router.push.TableWait({
+			tableRef:database().ref('tables/'+key),
+			tableNumber:index+1,
+			tableId:this.state.tables[key].tableId,
+			admin:false
 		});
 	}
 
@@ -73,7 +84,8 @@ class GameMenu extends React.Component {
 					<View style={styles.ScrollView}>
 						<ScrollView>
 							{Object.keys(this.state.tables).map((key, index) => {
-								return <TouchableOpacity key={index}style={styles.Table}>
+								return <TouchableOpacity key={index} style={styles.Table}
+								onPress={this.GoToTable.bind(this, key, index)}>
 									<Text style={styles.Text}>Table {index + 1}</Text>
 								</TouchableOpacity>
 							})}

@@ -26,3 +26,5 @@ export const Game_Button_Margin = 20;
 export const GameWait_Header_Height = 50;
 export const GameWait_PlayersList_Width = 350;
 export const GameWait_PlayersList_Heigth = 500;
+export const GameWait_PlayersList_Kick_Color = 'red';
+export const GameWait_PlayersList_Kick_FontSize = 25;

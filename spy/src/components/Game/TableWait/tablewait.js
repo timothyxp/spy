@@ -13,6 +13,8 @@ Menu_Text_Size,
 GameWait_Header_Height,
 GameWait_PlayersList_Width,
 GameWait_PlayersList_Heigth,
+GameWait_PlayersList_Kick_Color,
+GameWait_PlayersList_Kick_FontSize,
 Game_Content_Background,
 Game_Content_Border_Color,
 Game_Content_Border_Width,
@@ -43,7 +45,7 @@ class TableWait extends React.Component {
 		let wait=database().ref('wait/'+this.props.tableId);
 		wait.on('value', snapshot => {
 			let items = snapshot.val();
-
+			console.log(items);
 			this.setState({
 				events:{...items,...this.state.events}
 			});
@@ -60,27 +62,35 @@ class TableWait extends React.Component {
 				type:'new',
 				userId:this.state.userId
 			});
-
 		});
 	}
 
-	update() {
+	getPlayers() {
 		let players = new Set();
-		Object.keys(this.state.events).forEach((key) => {
+		Object.keys(this.state.events).sort().forEach((key) => {
 			let item=this.state.events[key];
 			if(item.type === 'new') {
 				players.add(item.userId);
-			} else {
+			} else if(item.type === 'leave') {
 				players.delete(item.userId);
 			}
 		});
 		
-		return Array.from(players)
+		return Array.from(players);
+	}
 
+	KickPlayer = (userId, event) => {
+		event.preventDefault();
+		let wait=database().ref('wait/'+this.props.tableId);
+		wait.push({
+			type:'leave',
+			userId:userId
+		});
 	}
 
 	render() {
-		let players = this.update();
+		let players = this.getPlayers();
+
 		return(
 			<View style={styles.TableWait}>
 				<View style={styles.Header}>
@@ -90,7 +100,11 @@ class TableWait extends React.Component {
 					<View style={styles.PlayerList}>
 							{players.map((key,index)=>{
 								return <View key={index} style={styles.Player}>
-									<Text style={styles.PlayerText}>User+{key}</Text>
+									<Text style={styles.PlayerText}>User{key}</Text>
+									{this.props.admin && this.state.userId !== key?
+									<Text style={styles.Kick} 
+									onPress={this.KickPlayer.bind(this,key)}>X</Text>
+									:<Text></Text>}
 								</View>
 							})}
 					</View>
@@ -140,6 +154,7 @@ const styles=StyleSheet.create({
 	Player:{
 		width:Menu_Button_Width,
 		height:Menu_Button_Heigth,
+		flexDirection: 'row',
 		alignItems:'center',
 		backgroundColor:Game_Button_Background,
 		justifyContent:'center',
@@ -150,5 +165,9 @@ const styles=StyleSheet.create({
 	PlayerText:{
 		color: Menu_Text_Unusual_Color,
 		fontSize: Menu_Text_Size
+	},
+	Kick:{
+		color:GameWait_PlayersList_Kick_Color,
+		fontSize: GameWait_PlayersList_Kick_FontSize
 	}
 })
