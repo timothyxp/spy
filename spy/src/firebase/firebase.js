@@ -12,8 +12,9 @@ var config = {
 let instants;
 
 export default () => {
-	if(!instants)
+	if(!instants){
 		instants=firebase.initializeApp(config);
+	}
 
 	return instants.database();
 };

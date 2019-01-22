@@ -46,6 +46,7 @@ class TableWait extends React.Component {
   	}
 
 	componentDidMount() {
+		this._isMounted = true;
 		let wait=database().ref('wait/'+this.props.tableId);
 		wait.on('value', snapshot => {
 			let items = snapshot.val();
@@ -71,12 +72,20 @@ class TableWait extends React.Component {
 			}
 
 			let playersAll=Array.from(players);
+			let pl=playersAll.length;
+
+			this.props.tableRef.set({
+				tableId:this.props.tableId,
+				size:places,
+				players:playersAll.length
+			});
+
 			for(let i=1; i <= places-players.size; i++) {
 				playersAll.push(-1);
 			}
-			console.log(playersAll);
+			
 			this.setState({
-				places:places,
+				places:pl,
 				players:playersAll
 			});
 		});
@@ -95,6 +104,22 @@ class TableWait extends React.Component {
 		});
 	}
 
+	componentWillUnmount() {
+		let wait = database().ref('wait/'+this.props.tableId);
+
+		wait.off();
+
+		if(this.state.places === 1){
+			wait.remove();
+			this.props.tableRef.remove();
+		} else {
+			wait.push({
+				type:'leave',
+				userId:this.state.userId
+			});
+		}
+	}
+
 	KickPlayer = (userId, event) => {
 		event.preventDefault();
 		let wait=database().ref('wait/'+this.props.tableId);
@@ -105,7 +130,7 @@ class TableWait extends React.Component {
 	}
 
 	AddPlace = () => {
-		if(this.state.places===10)
+		if(this.state.players.length === 10)
 			return;
 		let wait=database().ref('wait/'+this.props.tableId);
 		wait.push({
@@ -141,7 +166,8 @@ class TableWait extends React.Component {
 								</View>
 							}
 						})}
-						<Text onPress={()=>database().ref('wait/'+this.props.tableId).push({
+						<Text onPress={
+						()=>database().ref('wait/'+this.props.tableId).push({
 						type:'new',
 						userId:Math.floor(Math.random()*1e9)
 						})}>NEw kekes</Text>

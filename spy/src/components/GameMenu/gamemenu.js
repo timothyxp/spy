@@ -35,6 +35,7 @@ class GameMenu extends React.Component {
 
 		tableRef.on('value', snapshot => {
 			let items = snapshot.val();
+			console.log(items);
 			this.setState({
 				tables:{...this.state.tables,...items}
 			});
@@ -50,6 +51,11 @@ class GameMenu extends React.Component {
 			size:5,
 			players:0
 		});
+
+		let tables=database().ref('tables');
+
+		tables.off();
+
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
 			tableNumber:Object.keys(this.state.tables).length + 1,
@@ -64,6 +70,10 @@ class GameMenu extends React.Component {
 		let table=this.state.tables[key];
 		if(table.size <= table.players)
 			return;
+		let tables=database().ref('tables');
+
+		tables.off();
+
 		this.props.router.push.TableWait({
 			tableRef:database().ref('tables/'+key),
 			tableNumber:index+1,
@@ -91,7 +101,10 @@ class GameMenu extends React.Component {
 					<View style={styles.ScrollView}>
 						<ScrollView>
 							{Object.keys(this.state.tables).map((key, index) => {
-								return <TouchableOpacity key={index} style={styles.Table}
+								let table=this.state.tables[key];
+								return <TouchableOpacity key={index} 
+								style={table.size <= table.players ? styles.TableBusy
+									:styles.Table}
 								onPress={this.GoToTable.bind(this, key, index)}>
 									<Text style={styles.Text}>Table {index + 1}</Text>
 								</TouchableOpacity>
@@ -164,6 +177,21 @@ const styles = StyleSheet.create({
 		height:Menu_Button_Heigth,
 		alignItems:'center',
 		backgroundColor:Game_Button_Background,
+		justifyContent:'center',
+		borderStyle:'solid',
+		borderWidth:Menu_Button_Border_Width,
+		borderColor:Menu_Button_Border_Usual_Color,
+		borderRadius:Menu_Button_Border_Radius,
+		marginLeft:Game_Button_Margin,
+		marginRight:Game_Button_Margin,
+		marginTop:Game_Button_Margin,
+		marginBottom:Game_Button_Margin/2
+	},
+	TableBusy: {
+		width:Menu_Button_Width,
+		height:Menu_Button_Heigth,
+		alignItems:'center',
+		backgroundColor:'#e2e2e2',
 		justifyContent:'center',
 		borderStyle:'solid',
 		borderWidth:Menu_Button_Border_Width,
