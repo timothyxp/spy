@@ -1,3 +1,6 @@
+import {Dimensions} from 'react-native';
+
+
 export const Menu_Background = '#252435';
 export const Menu_Text_Unusual_Color = '#8c780a';
 export const Menu_Text_Usual_Color = '#8c8c5a';
@@ -25,6 +28,23 @@ export const Game_Button_Margin = 20;
 
 export const GameWait_Header_Height = 50;
 export const GameWait_PlayersList_Width = 350;
-export const GameWait_PlayersList_Heigth = 500;
+export const GameWait_PlayersList_Heigth = 350;
 export const GameWait_PlayersList_Kick_Color = 'red';
 export const GameWait_PlayersList_Kick_FontSize = 25;
+
+export const Game_Background = '#252435';
+
+export const Game_Events_Width = 350;
+export const Game_Events_Height = 350;
+export const Game_Events_Background = '#888888';
+export const Game_Events_BorderBackground = '#484848';
+export const Game_Events_BorderWidth = 10;
+export const Game_Events_BorderRadius = 20;
+
+export const Game_Footer_Height = 100;
+export const Game_Footer_Width = Dimensions.get('window').width;
+export const Game_Footer_Turn_Width = 50;
+export const Game_Footer_Turn_Background = '#ffffff';
+export const Game_Footer_Turn_Border_Background = '#b9b9b9';
+export const Game_Footer_Turn_BorderRadius = 30;
+export const Game_Footer_Turn_BorderWidth = 10;

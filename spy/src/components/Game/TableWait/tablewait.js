@@ -22,7 +22,8 @@ Game_Content_Border_Radius,
 Game_Button_Background,
 Game_AddTable_Width,
 Game_AddTable_Height,
-Menu_Button_Border_Radius} from '../../../styles/common.js'; 
+Menu_Button_Border_Radius,
+Game_Button_Margin} from '../../../styles/common.js'; 
 
 import database from '../../../firebase/firebase.js';
 
@@ -74,7 +75,7 @@ class TableWait extends React.Component {
 			let playersAll=Array.from(players);
 			let pl=playersAll.length;
 
-			this.props.tableRef.set({
+			this.props.admin && this.props.tableRef.set({
 				tableId:this.props.tableId,
 				size:places,
 				players:playersAll.length
@@ -109,7 +110,7 @@ class TableWait extends React.Component {
 
 		wait.off();
 
-		if(this.state.places === 1){
+		if(this.state.places === 1 || this.props.admin){
 			wait.remove();
 			this.props.tableRef.remove();
 		} else {
@@ -138,6 +139,19 @@ class TableWait extends React.Component {
 		});
 	}
 
+	Start = () => {
+		let wait=database().ref('wait/'+this.props.tableId);
+
+		wait.off();
+		wait.remove();
+		this.props.tableRef.remove();
+
+		this.props.router.stack[1].replace.Game({
+			userId:this.state.userId,
+			tableId:this.props.tableId
+		});
+	}
+
 	render() {
 		let players = this.state.players;
 
@@ -152,6 +166,7 @@ class TableWait extends React.Component {
 						<Text style={styles.Text_AddPlace}>New Place</Text>
 					</TouchableOpacity>
 					<View style={styles.PlayerList}>
+						<ScrollView>
 						{players.map((key,index)=>{
 							if(key !== -1) {
 								return <View key={index} style={styles.Player}>
@@ -167,11 +182,17 @@ class TableWait extends React.Component {
 							}
 						})}
 						<Text onPress={
+						/*()=>database().ref('wait/'+this.props.tableId).remove()*/
 						()=>database().ref('wait/'+this.props.tableId).push({
 						type:'new',
 						userId:Math.floor(Math.random()*1e9)
-						})}>NEw kekes</Text>
+						})}>Test Button</Text>
+						</ScrollView>
 					</View>
+					<TouchableOpacity style={styles.AddPlace}
+					onPress={this.Start}>
+						<Text style={styles.Text_AddPlace}>Start</Text>
+					</TouchableOpacity>
 				</View>
 			</View>
 		);
@@ -241,7 +262,9 @@ const styles=StyleSheet.create({
 		justifyContent:'center',
 		borderStyle:'solid',
 		borderWidth:Menu_Button_Border_Width,
-		borderColor:Menu_Button_Border_Usual_Color
+		borderColor:Menu_Button_Border_Usual_Color,
+		marginLeft: Game_Button_Margin,
+		marginRight: Game_Button_Margin
 	},
 	PlayerText:{
 		color: Menu_Text_Unusual_Color,
@@ -256,7 +279,9 @@ const styles=StyleSheet.create({
 		justifyContent:'center',
 		borderStyle:'solid',
 		borderWidth:Menu_Button_Border_Width,
-		borderColor:Menu_Button_Border_Usual_Color
+		borderColor:Menu_Button_Border_Usual_Color,
+		marginLeft: Game_Button_Margin,
+		marginRight: Game_Button_Margin
 	},
 	Kick:{
 		color:GameWait_PlayersList_Kick_Color,
