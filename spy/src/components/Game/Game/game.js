@@ -16,20 +16,47 @@ Game_Events_BorderWidth,
 Game_Events_BorderBackground,
 Game_Events_BorderRadius} from '../../../styles/common.js';
 
+import database from '../../../firebase/firebase.js';
+
 class Game extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			events:{}
+			events:{},
+			currentmessage:''
 		};
 	}
 
 	componentDidMount() {
+		let gametable=database().ref('game/'+this.props.tableId);
 
+		gametable.on('value', snapshot => {
+			let items=snapshot.val();
+			console.log(items);
+
+			this.setState({
+				events:items
+			});
+		});
+	}
+
+	handleSubmit = (event,any) => {
+		let gametable=database().ref('game/'+this.props.tableId);
+
+		gametable.push({
+			type:'message',
+			message:this.state.currentmessage
+		});
+
+		this.setState({
+			currentmessage:''
+		});
 	}
 
 	handleInputChange = text => {
-		console.log(text);
+		this.setState({
+			currentmessage:text
+		});
 	}
 
 	render() {
@@ -37,8 +64,25 @@ class Game extends React.Component {
 			<View style={styles.Game}>
 				<View style={styles.Content}>
 					<View style={styles.Events}>
+						<View style={{flex: 1}}>
+							<ScrollView>
+								<View style={styles.EventsMessage}>
+									{Object.keys(this.state.events).map((key,index)=>{
+										<View>
+											<Text key={index}>
+											this.state.events[key].message
+											</Text>
+										</View>
+									})}
+								</View>
+							</ScrollView>
+						</View>
 						<TextInput style={styles.TextInput} 
-						onChangeText={this.handleInputChange}/>
+						placeholder='Введите сообщение'
+						onChangeText={this.handleInputChange}
+						value={this.state.currentmessage}
+						onSubmitEditing={this.handleSubmit}
+						/>
 					</View>
 				</View>
 				<View style={styles.Footer}>
@@ -86,6 +130,17 @@ const styles=StyleSheet.create({
 		alignItems: 'center',
 	},
 	TextInput:{
+		height:50,
+		backgroundColor: 'white',
+		borderWidth: 5,
+		borderColor: 'red',
+		borderStyle: 'solid',
+		borderRadius: 10,
+	},
+	EventsMessage:{
+		width:Game_Events_Width,
+		height:200,
+		backgroundColor: 'green',
 		flex: 1,
 	},
 	Footer:{
