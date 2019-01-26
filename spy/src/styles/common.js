@@ -48,3 +48,11 @@ export const Game_Footer_Turn_Background = '#ffffff';
 export const Game_Footer_Turn_Border_Background = '#b9b9b9';
 export const Game_Footer_Turn_BorderRadius = 30;
 export const Game_Footer_Turn_BorderWidth = 10;
+
+export const TextInput_Height = 50;
+export const TextInput_BorderWidth = 5;
+export const TextInput_BorderColor = 'black';
+export const TextInput_BorderRadius = 10;
+export const TextInput_BackgroundColor = 'white';
+export const TextInput_PaddingLeft = 10;
+export const TextInput_PaddingRight = 10;
