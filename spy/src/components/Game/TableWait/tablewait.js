@@ -132,7 +132,8 @@ class TableWait extends React.Component {
 		this.props.router.stack[1].replace.Game({
 			userId:this.state.userId,
 			tableId:this.props.tableId,
-			admin:this.props.admin
+			admin:this.props.admin,
+			players:this.state.players
 		});
 	}
 

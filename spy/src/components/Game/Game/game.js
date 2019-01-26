@@ -1,6 +1,9 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import Input from '../../Pure/TextInput/textinput.js';
+import EventBox from '../EventBox/eventbox.js';
+
+import rules from './gamerules.json';
 
 import {styles} from './gamestyle.js';
 
@@ -18,6 +21,26 @@ class Game extends React.Component {
 	componentDidMount() {
 		let gametable=database().ref('game/'+this.props.tableId);
 
+		/*if(this.props.admin) {
+			let players = this.props.players.length;
+			let roles = [];
+			let spy=rules[players].spy;
+
+			for(let i=0;i<spy;++i)
+				roles.push(0);
+
+			for(let i=0;i<players-spy;++i)
+				roles.push(1);
+
+			for(let i=0;i<roles.length;++i){
+				let ind=Math.floor(Math.random()*(i+1));
+				let copy=roles[ind];
+				roles[ind]=roles[i];
+				roles[i]=copy;
+			}
+
+		}*/
+
 		gametable.on('value', snapshot => {
 			let items=snapshot.val();
 			console.log(items);
@@ -28,7 +51,7 @@ class Game extends React.Component {
 		});
 	}
 
-	handleSubmit = (event,any) => {
+	handleSubmitMessage = (event, any) => {
 		let gametable=database().ref('game/'+this.props.tableId);
 
 		gametable.push({
@@ -48,40 +71,39 @@ class Game extends React.Component {
 	}
 
 	render() {
+		console.log(this.props.players);
 		return(
 			<View style={styles.Game}>
-				<View style={styles.Content}>
-					<View style={styles.Events}>
-						<ScrollView>
-							{this.state.events && 
-								Object.keys(this.state.events).map((key,index)=>{
-									return(
-										<Text key={index}>
-										{this.state.events[key].message}
-										</Text>
-									);
-							})}
-						</ScrollView>
-						<Input placeholder='Введите сообщение'
-						onChangeText={this.handleInputChange}
-						value={this.state.currentmessage}
-						onSubmitEditing={this.handleSubmit}
-						/>
+				<View style={styles.Header}>
+					<Text></Text>
+				</View>
+				<View style={styles.Info}>
+					<View style={styles.Player}>
+
+					</View>
+					<View style={styles.Players}>
+
 					</View>
 				</View>
-				<View style={styles.Footer}>
-					<View style={styles.Turns}>
-						<TouchableOpacity style={styles.Turn}>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.Turn}>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.Turn}>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.Turn}>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.Turn}>
-						</TouchableOpacity>
-					</View>
+				<View style={styles.Turns}>
+					<TouchableOpacity style={styles.Turn}>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.Turn}>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.Turn}>
+					</TouchableOpacity>
+					<TouchableOpacity style ={styles.Turn}>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.Turn}>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.Events}>
+					<EventBox events={this.state.events}/>
+					<Input placeholder='Введите сообщение'
+					onChangeText={this.handleInputChange}
+					value={this.state.currentmessage}
+					onSubmitEditing={this.handleSubmitMessage}
+					/>
 				</View>
 			</View>
 		);
