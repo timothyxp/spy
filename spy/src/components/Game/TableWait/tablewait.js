@@ -32,6 +32,8 @@ class TableWait extends React.Component {
 
 			let places = 5;
 			let players = new Set();
+			let start=false;
+
 			if(items) {
 				Object.keys(items).sort().forEach((key) => {
 					let item=items[key];
@@ -45,11 +47,11 @@ class TableWait extends React.Component {
 						places--;
 					} else if(item.type === 'start'){
 						this.Start();
-						return;
+						start=true;
 					}
 				});
 			}
-			if(!players.has(this.state.userId)){
+			if(!start && !players.has(this.state.userId)){
 				this.props.router.pop();
 			}
 
@@ -124,7 +126,7 @@ class TableWait extends React.Component {
 		let wait=database().ref('wait/'+this.props.tableId);
 
 		wait.off();
-		this.props.admin && wait.set({
+		this.props.admin && wait.push({
 			type:'start'
 		});
 		this.props.admin && this.props.tableRef.remove();

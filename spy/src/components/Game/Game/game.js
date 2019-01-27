@@ -14,18 +14,25 @@ class Game extends React.Component {
 		super(props);
 
 		let number=0;
+		let chosen=[];
 		for(let i=0;i<this.props.players.length;++i){
 			if(this.props.players[i]==this.props.userId){
 				number=i;
-				break;
 			}
+			chosen.push(false);
 		}
 
 		this.state = {
 			events:{},
 			currentmessage:'',
 			roles:[],
-			number:number
+			number:number,
+			turn:1,
+			team:1,
+			picker:0,
+			chosen:[],
+			gameState:'choose',
+			chosenTeam:[]
 		};
 	}
 
@@ -62,39 +69,70 @@ class Game extends React.Component {
 			if(items){
 				let events={};
 				let roles=[];
+				let gameState=this.state.gameState;
+				let turn=this.state.turn;
+				let team=this.state.team;
+				let chosenTeam=this.state.chosenTeam;
 
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
 					if(item.type==='message'){
-						events={...events,...{key:item}};
+						events={...events,...{[key]:item}};
 					} else if(item.type==='roles') {
 						roles=item.roles;
+					} else if(item.type==='acceptTeam') {
+						if(item.turn>=turn || 
+						(item.turn===turn && item.team>team)){
+							gameState='voteTeam';
+							turn=item.turn;
+							team=item.team;
+							chosenTeam=item.chosen;
+						}
 					}
 				});
 
 				this.setState({
 					roles:roles,
-					events:events
+					events:events,
+					turn:turn,
+					team:team,
+					gameState:gameState,
+					chosenTeam:chosenTeam
 				});
 			}
 		});
 	}
 
-	getRole(){
+	componentWillUnmount() {
+		let wait=database().ref('wait/'+this.props.tableId);
+		let gametable=database().ref('game/'+this.props.tableId);
+
+		this.props.admin && wait.remove();
+		this.props.admin && gametable.off();
+	}
+
+	getRole() {
 		return this.state.roles[this.state.number];
+	}
+
+	getId() {
+		return this.props.players[this.state.number];
 	}
 
 	handleSubmitMessage = (event, any) => {
 		let gametable=database().ref('game/'+this.props.tableId);
 
-		gametable.push({
-			type:'message',
-			message:this.state.currentmessage
-		});
-
-		this.setState({
-			currentmessage:''
-		});
+		if(this.state.currentmessage.length!==0){
+			gametable.push({
+				type:'message',
+				message:this.state.currentmessage,
+				turn:this.state.turn
+			});
+	
+			this.setState({
+				currentmessage:''
+			});
+		}
 	}
 
 	handleInputChange = text => {
@@ -103,22 +141,60 @@ class Game extends React.Component {
 		});
 	}
 
+	ChoosePlayer = (index) => {
+		if(this.state.number===this.state.picker){
+			let chosen=this.state.chosen;
+			chosen[index]=!chosen[index];
+
+			this.setState({
+				chosen:chosen
+			});
+		}
+	}
+
+	AcceptTeam = () => {
+		let gametable=database().ref('game/'+this.props.tableId);
+
+		gametable.push({
+			type:'acceptTeam',
+			chosen:this.state.chosen,
+			turn:this.state.turn,
+			team:this.state.team
+		});
+	}
+
 	render() {
 		return(
 			<View style={styles.Game}>
 				<View style={styles.Header}>
 					<Text style={styles.Header_Text}>
-					Table{this.props.tableId}</Text>
+					{this.state.gameState}</Text>
 				</View>
 				<View style={styles.Info}>
-					<View style={this.getRole()?styles.Player:styles.PlayerSpy}>
+					<View style={styles.LeftInfo}>
+						<View style={this.getRole()?styles.Player:styles.PlayerSpy}>
+						</View>
+						{this.state.number===this.state.picker ?
+						<TouchableOpacity style={styles.AcceptTeam}
+						onPress={this.AcceptTeam}>
+							<Text style={styles.AcceptTeamText}>
+								Принять</Text>
+						</TouchableOpacity>
+						:<View></View>
+						}
 					</View>
 					<View style={styles.Players}>
 						{Object.keys(this.props.players).map((key,index)=>{
 							return(
-								<Text key={index}>
-								{index+1}.{this.props.players[key]}
-								</Text>
+								<TouchableOpacity key={index} 
+								style={this.state.chosen[index] 
+									? styles.PLayerRowChosen
+									:styles.PLayerRow}
+								onPress={this.ChoosePlayer.bind(this,index)}>
+									<Text>
+									{index+1}.{this.props.players[key]}
+									</Text>
+								</TouchableOpacity>
 							);	
 						})}
 					</View>

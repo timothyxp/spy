@@ -50,11 +50,18 @@ export const Game_Header_Height = 50;
 export const Game_Player_BorderWidth = 1;
 export const Game_Player_BorderColor = 'black';
 export const Game_Player_BorderRadius = 10;
-export const Game_Player_Width = 130;
-export const Game_Player_Height = 150;
+export const Game_Player_Width = 100;
+export const Game_Player_Height = 100;
 
-export const Game_Plyers_Width = 220;
-export const Game_Plyers_Height = 250;
+export const Game_AcceptTeam_BorderWidth = 1;
+export const Game_AcceptTeam_BorderColor = 'black';
+export const Game_AcceptTeam_BorderRadius = 10;
+export const Game_AcceptTeam_Width = 100;
+export const Game_AcceptTeam_Height = 40;
+export const Game_AcceptTeam_BackgroundColor = 'white';
+
+export const Game_Players_Width = 250;
+export const Game_Players_Height = 250;
 export const Game_Players_BorderWidth = 1;
 export const Game_Players_BorderColor = 'black';
 export const Game_Players_BorderRadius = 10;
