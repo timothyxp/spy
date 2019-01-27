@@ -10,18 +10,29 @@ import {styles} from './gamestyle.js';
 import database from '../../../firebase/firebase.js';
 
 class Game extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
+
+		let number=0;
+		for(let i=0;i<this.props.players.length;++i){
+			if(this.props.players[i]==this.props.userId){
+				number=i;
+				break;
+			}
+		}
+
 		this.state = {
 			events:{},
-			currentmessage:''
+			currentmessage:'',
+			roles:[],
+			number:number
 		};
 	}
 
 	componentDidMount() {
 		let gametable=database().ref('game/'+this.props.tableId);
 
-		/*if(this.props.admin) {
+		if(this.props.admin) {
 			let players = this.props.players.length;
 			let roles = [];
 			let spy=rules[players].spy;
@@ -39,16 +50,38 @@ class Game extends React.Component {
 				roles[i]=copy;
 			}
 
-		}*/
+			gametable.push({
+				type:'roles',
+				roles:roles
+			});
+		}
 
 		gametable.on('value', snapshot => {
 			let items=snapshot.val();
-			console.log(items);
 
-			this.setState({
-				events:items
-			});
+			if(items){
+				let events={};
+				let roles=[];
+
+				Object.keys(items).sort().forEach((key)=>{
+					let item=items[key];
+					if(item.type==='message'){
+						events={...events,...{key:item}};
+					} else if(item.type==='roles') {
+						roles=item.roles;
+					}
+				});
+
+				this.setState({
+					roles:roles,
+					events:events
+				});
+			}
 		});
+	}
+
+	getRole(){
+		return this.state.roles[this.state.number];
 	}
 
 	handleSubmitMessage = (event, any) => {
@@ -71,30 +104,40 @@ class Game extends React.Component {
 	}
 
 	render() {
-		console.log(this.props.players);
 		return(
 			<View style={styles.Game}>
 				<View style={styles.Header}>
-					<Text></Text>
+					<Text style={styles.Header_Text}>
+					Table{this.props.tableId}</Text>
 				</View>
 				<View style={styles.Info}>
-					<View style={styles.Player}>
-
+					<View style={this.getRole()?styles.Player:styles.PlayerSpy}>
 					</View>
 					<View style={styles.Players}>
-
+						{Object.keys(this.props.players).map((key,index)=>{
+							return(
+								<Text key={index}>
+								{index+1}.{this.props.players[key]}
+								</Text>
+							);	
+						})}
 					</View>
 				</View>
 				<View style={styles.Turns}>
 					<TouchableOpacity style={styles.Turn}>
+						<Text style={styles.Turn_Text}>I</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.Turn}>
+						<Text style={styles.Turn_Text}>II</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.Turn}>
+						<Text style={styles.Turn_Text}>III</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style ={styles.Turn}>
+						<Text style={styles.Turn_Text}>IV</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.Turn}>
+						<Text style={styles.Turn_Text}>V</Text>
 					</TouchableOpacity>
 				</View>
 				<View style={styles.Events}>

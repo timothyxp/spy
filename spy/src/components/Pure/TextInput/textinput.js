@@ -35,10 +35,11 @@ const styles=StyleSheet.create({
 	TextInput:{
 		height:TextInput_Height,
 		backgroundColor: TextInput_BackgroundColor,
-		borderWidth: TextInput_BorderWidth,
-		borderColor: TextInput_BorderColor,
+		borderTopWidth: TextInput_BorderWidth,
+		borderTopColor: TextInput_BorderColor,
 		borderStyle: 'solid',
-		borderRadius: TextInput_BorderRadius,
+		borderBottomLeftRadius: TextInput_BorderRadius,
+		borderBottomRightRadius: TextInput_BorderRadius,
 		paddingLeft: TextInput_PaddingLeft,
 		paddingRight: TextInput_PaddingRight,
 	}

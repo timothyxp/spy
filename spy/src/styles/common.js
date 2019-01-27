@@ -1,6 +1,7 @@
 import {Dimensions} from 'react-native';
 
 export const Screen_Width = Dimensions.get('window').width;
+export const Screen_Heigth = Dimensions.get('window').height;
 
 export const Menu_Background = '#252435';
 export const Menu_Text_Unusual_Color = '#8c780a';
@@ -33,24 +34,40 @@ export const GameWait_PlayersList_Heigth = 350;
 export const GameWait_PlayersList_Kick_Color = 'red';
 export const GameWait_PlayersList_Kick_FontSize = 25;
 
-export const Game_Background = '#252435';
+export const Game_Background = '#831e00';
 
 export const Game_Events_Width = 350;
 export const Game_Events_Height = 250;
-export const Game_Events_Background = '#888888';
-export const Game_Events_BorderBackground = '#484848';
-export const Game_Events_BorderWidth = 10;
-export const Game_Events_BorderRadius = 20;
+export const Game_Events_Background = 'white';
+export const Game_Events_BorderBackground = 'black';
+export const Game_Events_BorderWidth = 1;
+export const Game_Events_BorderRadius = 10;
 
-export const Game_Footer_Height = 60;
-export const Game_Footer_Turn_Width = 50;
-export const Game_Footer_Turn_Background = '#ffffff';
-export const Game_Footer_Turn_Border_Background = '#b9b9b9';
-export const Game_Footer_Turn_BorderRadius = 30;
-export const Game_Footer_Turn_BorderWidth = 10;
+export const Game_Header_BorderWidth = 1;
+export const Game_Header_BorderColor = 'black';
+export const Game_Header_Height = 50;
+
+export const Game_Player_BorderWidth = 1;
+export const Game_Player_BorderColor = 'black';
+export const Game_Player_BorderRadius = 10;
+export const Game_Player_Width = 130;
+export const Game_Player_Height = 150;
+
+export const Game_Plyers_Width = 220;
+export const Game_Plyers_Height = 250;
+export const Game_Players_BorderWidth = 1;
+export const Game_Players_BorderColor = 'black';
+export const Game_Players_BorderRadius = 10;
+
+export const Game_Turns_Height = 60;
+export const Game_Turns_Turn_Width = 50;
+export const Game_Turns_Turn_Background = '#ffffff';
+export const Game_Turns_Turn_Border_Background = '#b9b9b9';
+export const Game_Turns_Turn_BorderRadius = 30;
+export const Game_Turns_Turn_BorderWidth = 10;
 
 export const TextInput_Height = 50;
-export const TextInput_BorderWidth = 5;
+export const TextInput_BorderWidth = 1;
 export const TextInput_BorderColor = 'black';
 export const TextInput_BorderRadius = 10;
 export const TextInput_BackgroundColor = 'white';
