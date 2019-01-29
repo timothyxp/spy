@@ -87,7 +87,7 @@ export const styles=StyleSheet.create({
 		borderStyle: 'solid',
 		borderRadius: Game_Player_BorderRadius,
 	},
-	AcceptTeam:{
+	AcceptTeamActive:{
 		height:Game_AcceptTeam_Height,
 		width:Game_AcceptTeam_Width,
 		backgroundColor: Game_AcceptTeam_BackgroundColor,
@@ -98,6 +98,19 @@ export const styles=StyleSheet.create({
 		marginTop: 20,
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	AcceptTeamUnActive:{
+		height:Game_AcceptTeam_Height,
+		width:Game_AcceptTeam_Width,
+		backgroundColor: Game_AcceptTeam_BackgroundColor,
+		borderWidth: Game_AcceptTeam_BorderWidth,
+		borderColor: Game_AcceptTeam_BorderColor,
+		borderStyle: 'solid',
+		borderRadius: Game_AcceptTeam_BorderRadius,
+		marginTop: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#0000006B',
 	},
 	AcceptTeamText:{
 		fontSize: 18,

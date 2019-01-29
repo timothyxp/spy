@@ -32,7 +32,7 @@ class GameMenu extends React.Component {
 
 		let NewTableRef = tableRef.push({
 			tableId:tableId,
-			size:5,
+			size:2,
 			players:0
 		});
 

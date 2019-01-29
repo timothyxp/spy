@@ -290,6 +290,11 @@ class Game extends React.Component {
 		}
 	}
 
+	EnoughPlayers = () => {
+		return this.state.chosenNumber === 
+		rules[this.props.players.length][this.state.turn];
+	}
+
 	AcceptTeam = () => {
 		let playersNumber=this.props.players.length;
 		if(rules[playersNumber][this.state.turn] !== this.state.chosenNumber)
@@ -330,7 +335,9 @@ class Game extends React.Component {
 						</View>
 						{this.state.number===this.state.picker && 
 						this.state.gameState==='choose' ?
-						<TouchableOpacity style={styles.AcceptTeam}
+						<TouchableOpacity style= {this.EnoughPlayers() 
+							? styles.AcceptTeamActive:
+							styles.AcceptTeamUnActive}
 						onPress={this.AcceptTeam}>
 							<Text style={styles.AcceptTeamText}>
 								Принять</Text>
