@@ -113,7 +113,7 @@ export const styles=StyleSheet.create({
 		backgroundColor: 'white',
 		flexDirection: 'column',
 	},
-	PLayerRow:{
+	PlayerRow:{
 		height: 40,
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -122,7 +122,7 @@ export const styles=StyleSheet.create({
 		borderBottomColor: 'black',
 		borderStyle: 'solid',
 	},
-	PLayerRowChosen:{
+	PlayerRowChosen:{
 		height: 40,
 		justifyContent: 'center',
 		alignItems: 'center',

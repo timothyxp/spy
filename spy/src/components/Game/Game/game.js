@@ -28,9 +28,10 @@ class Game extends React.Component {
 			roles:[],
 			number:number,
 			turn:1,
-			team:1,
+			team:0,
 			picker:0,
 			chosen:[],
+			chosenNumber:0,
 			gameState:'choose',
 			chosenTeam:[]
 		};
@@ -70,9 +71,16 @@ class Game extends React.Component {
 				let events={};
 				let roles=[];
 				let gameState=this.state.gameState;
-				let turn=this.state.turn;
+				let lastState=this.state.gameState;
+				let turn =this.state.turn;
 				let team=this.state.team;
 				let chosenTeam=this.state.chosenTeam;
+				let votes=[];
+				let votesNumber=0;
+				let playersNumber=this.props.players.length;
+				let picker=this.state.picker;
+				let missionVotes=[];
+				let missionVotesNumber=0;
 
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
@@ -81,12 +89,69 @@ class Game extends React.Component {
 					} else if(item.type==='roles') {
 						roles=item.roles;
 					} else if(item.type==='acceptTeam') {
-						if(item.turn>=turn || 
+						if(item.turn>turn || 
 						(item.turn===turn && item.team>team)){
+							Missionvotes=[];
+							votes=[];
+							votesNumber=0;
+							missionVotesNumber=0;
 							gameState='voteTeam';
 							turn=item.turn;
 							team=item.team;
 							chosenTeam=item.chosen;
+						}
+					} else if(item.type==='voteTeam') {
+						if(item.turn===turn && item.team=== team){
+							let num = item.number;
+							if(!votes[num]){
+								votes[num]=item.result;
+								votesNumber++;
+							}
+							if(votesNumber===1/*playersNumber*/){
+								let accept=0;
+								let reject=0;
+								for(let i=0;i<playersNumber;i++){
+									if(votes[i]==='accept')
+										accept++;
+									else
+										reject++;
+								}
+								if(accept===1/*accept>=reject*/){
+									gameState='voteMission';
+								} else {
+									gameState='choose';
+									team++;
+									//picker=(picker+1)%playersNumber;
+								}
+							}
+						}
+					} else if(item.type==='voteMission') {
+						if(item.turn===turn && item.team===team){
+							let num=item.number;
+							gameState='misiionWait';
+							if(!missionVotes[num]){
+								missionVotes[num]=item.result;
+								missionVotesNumber++;
+							}
+							let spy=rules[playersNumber][turn];
+							if(missionVotesNumber===1/*spy*/){
+								let accept=0;
+								let reject=0;
+								for(let i=0;i<playersNumber;i++){
+									if(missionVotesNumber[i]==='accept')
+										accept++;
+									else
+										reject++;
+								}
+								if(reject>=1/*accept>=reject*/){
+									gameState='choose';
+									turn++;
+								} else {
+									gameState='choose';
+									turn++;
+									//picker=(picker+1)%playersNumber;
+								}
+							}
 						}
 					}
 				});
@@ -97,9 +162,74 @@ class Game extends React.Component {
 					turn:turn,
 					team:team,
 					gameState:gameState,
-					chosenTeam:chosenTeam
+					chosenTeam:chosenTeam,
+					picker:picker
 				});
+				
+				if(gameState==='voteTeam') {
+					this.props.router.push.GameVote({
+						type:'Team',
+						handleSubmit:this.VoteTeam,
+						players:this.props.players,
+						chosen:chosenTeam,
+						turn:turn,
+						team:team
+					});
+				}
+
+				if(gameState==='voteMission') {
+					setTimeout(()=> {
+						chosenTeam[this.state.number] && 
+						this.props.router.push.GameVote({
+							type:'Mission',
+							handleSubmit:this.VoteMission,
+							players:this.props.players,
+							chosen:chosenTeam,
+							turn:turn,
+							team:team
+						});
+						}
+					,1000);
+				}
 			}
+		});
+	}
+
+	VoteTeam = (result,turn,team) => {
+		
+		this.props.router.pop();
+
+		let gametable=database().ref('game/'+this.props.tableId);
+
+		gametable.push({
+			type:'voteTeam',
+			number:this.state.number,
+			turn:turn,
+			team:team,
+			result:result
+		});
+
+		this.setState({
+			gameState:'chooseWait'
+		});
+	}
+
+	VoteMission = (result,turn,team) => {
+		
+		this.props.router.pop();
+
+		let gametable=database().ref('game/'+this.props.tableId);
+
+		gametable.push({
+			type:'voteMission',
+			number:this.state.number,
+			turn:turn,
+			team:team,
+			result:result
+		});
+
+		this.setState({
+			gameState:'misiionWait'
 		});
 	}
 
@@ -144,37 +274,62 @@ class Game extends React.Component {
 	ChoosePlayer = (index) => {
 		if(this.state.number===this.state.picker){
 			let chosen=this.state.chosen;
+			let chosenNumber=this.state.chosenNumber;
+
 			chosen[index]=!chosen[index];
+			if(chosen[index])
+				chosenNumber++;
+			else
+				chosenNumber--;
+
 
 			this.setState({
-				chosen:chosen
+				chosen:chosen,
+				chosenNumber:chosenNumber
 			});
 		}
 	}
 
 	AcceptTeam = () => {
+		let playersNumber=this.props.players.length;
+		if(rules[playersNumber][this.state.turn] !== this.state.chosenNumber)
+			return;
+		
 		let gametable=database().ref('game/'+this.props.tableId);
 
 		gametable.push({
 			type:'acceptTeam',
 			chosen:this.state.chosen,
 			turn:this.state.turn,
-			team:this.state.team
+			team:this.state.team+1
+		});
+
+		let chosen =this.state.chosen;
+		for(let i=0;i<chosen.length;i++){
+			chosen[i]=false;
+		}
+		this.setState({
+			chosen:chosen,
+			chosenNumber:0
 		});
 	}
 
+	
 	render() {
 		return(
 			<View style={styles.Game}>
 				<View style={styles.Header}>
 					<Text style={styles.Header_Text}>
-					{this.state.gameState}</Text>
+					{this.state.gameState}-
+					{this.state.gameState==='choose'? this.state.picker+1:''}
+					turn-{this.state.turn}</Text>
 				</View>
 				<View style={styles.Info}>
 					<View style={styles.LeftInfo}>
 						<View style={this.getRole()?styles.Player:styles.PlayerSpy}>
 						</View>
-						{this.state.number===this.state.picker ?
+						{this.state.number===this.state.picker && 
+						this.state.gameState==='choose' ?
 						<TouchableOpacity style={styles.AcceptTeam}
 						onPress={this.AcceptTeam}>
 							<Text style={styles.AcceptTeamText}>
@@ -188,8 +343,8 @@ class Game extends React.Component {
 							return(
 								<TouchableOpacity key={index} 
 								style={this.state.chosen[index] 
-									? styles.PLayerRowChosen
-									:styles.PLayerRow}
+									? styles.PlayerRowChosen
+									:styles.PlayerRow}
 								onPress={this.ChoosePlayer.bind(this,index)}>
 									<Text>
 									{index+1}.{this.props.players[key]}

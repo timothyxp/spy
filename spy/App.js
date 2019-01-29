@@ -6,9 +6,10 @@ import MainMenu from './src/components/MainMenu/mainmenu.js';
 import Settings from './src/components/Settings/settings.js';
 import GameMenu from './src/components/GameMenu/gamemenu.js';
 import TableWait from './src/components/Game/TableWait/tablewait.js';
+import GameVote from './src/components/Game/GameVote/gamevote.js';
 import Game from './src/components/Game/Game/game.js';
 
-const routes = {MainMenu, Settings, GameMenu, TableWait, Game};
+const routes = {MainMenu, Settings, GameMenu, TableWait, Game, GameVote};
 
 export default class App extends Component {
   constructor() {
