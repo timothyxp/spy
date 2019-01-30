@@ -33,7 +33,8 @@ class Game extends React.Component {
 			chosen:[],
 			chosenNumber:0,
 			gameState:'choose',
-			chosenTeam:[]
+			chosenTeam:[],
+			spyWins:0
 		};
 	}
 
@@ -81,6 +82,7 @@ class Game extends React.Component {
 				let picker=this.state.picker;
 				let missionVotes=[];
 				let missionVotesNumber=0;
+				let spyWins=this.state.spyWins;
 
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
@@ -138,13 +140,16 @@ class Game extends React.Component {
 								let accept=0;
 								let reject=0;
 								for(let i=0;i<playersNumber;i++){
-									if(missionVotesNumber[i]==='accept')
-										accept++;
-									else
-										reject++;
+									if(chosenTeam[i]){
+										if(missionVotes[i]==='accept')
+											accept++;
+										else
+											reject++;
+									}	
 								}
 								if(reject>=1/*accept>=reject*/){
 									gameState='choose';
+									spyWins++;
 									turn++;
 								} else {
 									gameState='choose';
@@ -156,6 +161,17 @@ class Game extends React.Component {
 					}
 				});
 
+				if(spyWins === 3 || turn-spyWins === 4){
+					setTimeout(() => {
+						this.props.router.push.FinishGame({
+							roles:roles,
+							tableId:this.props.tableId,
+							spyWins:spyWins
+						});
+					}	
+					,1000);
+				}
+
 				this.setState({
 					roles:roles,
 					events:events,
@@ -163,7 +179,8 @@ class Game extends React.Component {
 					team:team,
 					gameState:gameState,
 					chosenTeam:chosenTeam,
-					picker:picker
+					picker:picker,
+					spyWins:spyWins
 				});
 				
 				if(gameState==='voteTeam') {

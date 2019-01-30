@@ -8,8 +8,9 @@ import GameMenu from './src/components/GameMenu/gamemenu.js';
 import TableWait from './src/components/Game/TableWait/tablewait.js';
 import GameVote from './src/components/Game/GameVote/gamevote.js';
 import Game from './src/components/Game/Game/game.js';
+import FinishGame from './src/components/Game/FinishGame/finishgame.js';
 
-const routes = {MainMenu, Settings, GameMenu, TableWait, Game, GameVote};
+const routes = {MainMenu, Settings, GameMenu, TableWait, Game, GameVote, FinishGame};
 
 export default class App extends Component {
   constructor() {

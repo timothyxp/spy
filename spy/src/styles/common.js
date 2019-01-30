@@ -42,6 +42,7 @@ export const Game_Events_Background = 'white';
 export const Game_Events_BorderBackground = 'black';
 export const Game_Events_BorderWidth = 1;
 export const Game_Events_BorderRadius = 10;
+export const Game_Events_MarginBottom = 10;
 
 export const Game_Header_BorderWidth = 1;
 export const Game_Header_BorderColor = 'black';
