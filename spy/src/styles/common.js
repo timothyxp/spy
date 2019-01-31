@@ -47,6 +47,10 @@ export const Game_Events_MarginBottom = 10;
 export const Game_Header_BorderWidth = 1;
 export const Game_Header_BorderColor = 'black';
 export const Game_Header_Height = 50;
+export const Game_Header_TurnSize = 14;
+export const Game_Header_TurnBorderRedius = 7;
+export const Game_Header_TurnBorderWidth = 1;
+export const Game_Header_TurnsWidth=Game_Header_TurnSize*7;
 
 export const Game_Player_BorderWidth = 1;
 export const Game_Player_BorderColor = 'black';

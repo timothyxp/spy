@@ -54,11 +54,8 @@ export const styles=StyleSheet.create({
 		borderBottomColor: Game_Header_BorderColor,
 		borderStyle: 'solid',
 		justifyContent: 'center',
-		alignItems: 'center'
-	},
-	Header_Text:{
-		fontSize: 22,
-		color: 'black',
+		alignItems: 'center',
+		flexDirection: 'column',
 	},
 	Info:{
 		flexDirection: 'row',

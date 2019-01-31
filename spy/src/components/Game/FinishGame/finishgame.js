@@ -11,6 +11,7 @@ class FinishGame extends React.Component {
 			<View>
 				<Text>
 					SpyWins-{this.props.spyWins}
+					ResWins-{this.props.resWins}
 					roles-{this.props.roles}
 				</Text>
 			</View>

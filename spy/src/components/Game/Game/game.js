@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import Input from '../../Pure/TextInput/textinput.js';
 import EventBox from '../EventBox/eventbox.js';
+import StateBox from '../StateBox/statebox.js';
 
 import rules from './gamerules.json';
 
@@ -34,7 +35,10 @@ class Game extends React.Component {
 			chosenNumber:0,
 			gameState:'choose',
 			chosenTeam:[],
-			spyWins:0
+			spyWins:0,
+			resWins:0,
+			userId:this.props.userId,
+			results:[]
 		};
 	}
 
@@ -83,6 +87,8 @@ class Game extends React.Component {
 				let missionVotes=[];
 				let missionVotesNumber=0;
 				let spyWins=this.state.spyWins;
+				let resWins=this.state.resWins;
+				let results=this.state.results;
 
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
@@ -148,12 +154,15 @@ class Game extends React.Component {
 									}	
 								}
 								if(reject>=1/*accept>=reject*/){
+									results[turn]='reject';
 									gameState='choose';
 									spyWins++;
 									turn++;
 								} else {
+									results[turn]='accept';
 									gameState='choose';
 									turn++;
+									resWins++;
 									//picker=(picker+1)%playersNumber;
 								}
 							}
@@ -161,12 +170,13 @@ class Game extends React.Component {
 					}
 				});
 
-				if(spyWins === 3 || turn-spyWins === 4){
+				if(spyWins === 3 || resWins === 3){
 					setTimeout(() => {
 						this.props.router.push.FinishGame({
 							roles:roles,
 							tableId:this.props.tableId,
-							spyWins:spyWins
+							spyWins:spyWins,
+							resWins:resWins
 						});
 					}	
 					,1000);
@@ -180,7 +190,9 @@ class Game extends React.Component {
 					gameState:gameState,
 					chosenTeam:chosenTeam,
 					picker:picker,
-					spyWins:spyWins
+					spyWins:spyWins,
+					resWins:resWins,
+					results:results
 				});
 				
 				if(gameState==='voteTeam') {
@@ -191,6 +203,9 @@ class Game extends React.Component {
 						chosen:chosenTeam,
 						turn:turn,
 						team:team
+					},
+					{
+						type:'none'
 					});
 				}
 
@@ -204,6 +219,8 @@ class Game extends React.Component {
 							chosen:chosenTeam,
 							turn:turn,
 							team:team
+						},{
+							type:'none'
 						});
 						}
 					,1000);
@@ -289,7 +306,8 @@ class Game extends React.Component {
 	}
 
 	ChoosePlayer = (index) => {
-		if(this.state.number===this.state.picker){
+		if(this.state.number===this.state.picker 
+			&& this.state.gameState==='choose'){
 			let chosen=this.state.chosen;
 			let chosenNumber=this.state.chosenNumber;
 
@@ -341,10 +359,8 @@ class Game extends React.Component {
 		return(
 			<View style={styles.Game}>
 				<View style={styles.Header}>
-					<Text style={styles.Header_Text}>
-					{this.state.gameState}-
-					{this.state.gameState==='choose'? this.state.picker+1:''}
-					turn-{this.state.turn}</Text>
+					<StateBox state={this.state}
+					players={this.props.players}/>
 				</View>
 				<View style={styles.Info}>
 					<View style={styles.LeftInfo}>
