@@ -24,7 +24,7 @@ class Game extends React.Component {
 		}
 
 		this.state = {
-			events:{},
+			events:[],
 			currentmessage:'',
 			roles:[],
 			number:number,
@@ -73,7 +73,7 @@ class Game extends React.Component {
 			let items=snapshot.val();
 
 			if(items){
-				let events={};
+				let events=[];
 				let roles=[];
 				let gameState=this.state.gameState;
 				let lastState=this.state.gameState;
@@ -93,10 +93,11 @@ class Game extends React.Component {
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
 					if(item.type==='message'){
-						events={...events,...{[key]:item}};
+						events.push(item);
 					} else if(item.type==='roles') {
 						roles=item.roles;
 					} else if(item.type==='acceptTeam') {
+						events.push(item);
 						if(item.turn>turn || 
 						(item.turn===turn && item.team>team)){
 							Missionvotes=[];
@@ -126,9 +127,17 @@ class Game extends React.Component {
 								}
 								if(accept===1/*accept>=reject*/){
 									gameState='voteMission';
+									events.push({
+										type:'choose',
+										result:'accept'
+									});
 								} else {
 									gameState='choose';
 									team++;
+									events.push({
+										type:'choose',
+										result:'reject'
+									});
 									//picker=(picker+1)%playersNumber;
 								}
 							}
@@ -158,11 +167,19 @@ class Game extends React.Component {
 									gameState='choose';
 									spyWins++;
 									turn++;
+									events.push({
+										type:'mission',
+										result:'reject'
+									});
 								} else {
 									results[turn]='accept';
 									gameState='choose';
 									turn++;
 									resWins++;
+									events.push({
+										type:'mission',
+										result:'accept'
+									});
 									//picker=(picker+1)%playersNumber;
 								}
 							}
@@ -396,7 +413,8 @@ class Game extends React.Component {
 						})}
 					</View>
 				</View>
-				<View style={styles.Turns}>
+				{
+				/*<View style={styles.Turns}>
 					<TouchableOpacity style={styles.Turn}>
 						<Text style={styles.Turn_Text}>I</Text>
 					</TouchableOpacity>
@@ -412,7 +430,8 @@ class Game extends React.Component {
 					<TouchableOpacity style={styles.Turn}>
 						<Text style={styles.Turn_Text}>V</Text>
 					</TouchableOpacity>
-				</View>
+				</View>*/
+				}
 				<View style={styles.Events}>
 					<EventBox events={this.state.events}/>
 					<Input placeholder='Введите сообщение'
