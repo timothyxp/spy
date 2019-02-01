@@ -271,8 +271,10 @@ class Game extends React.Component {
 		let wait=database().ref('wait/'+this.props.tableId);
 		let gametable=database().ref('game/'+this.props.tableId);
 
+		wait.off();
 		this.props.admin && wait.remove();
-		this.props.admin && gametable.off();
+		gametable.off();
+		this.props.admin && gametable.remove();
 	}
 
 	getRole() {

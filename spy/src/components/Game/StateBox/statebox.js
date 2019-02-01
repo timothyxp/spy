@@ -15,13 +15,22 @@ class StateBox extends React.Component {
 
 	getMainText() {
 		let state=this.props.state;
-		if(state.gameState==='choose'){
+		if(state.gameState==='choose'){//выбор
+			let players=rules[this.props.players.length][state.turn];
+			let playersName=players===1?'игрока':'игроков';
 			if(this.props.players[state.picker]===state.userId){
-				let players=rules[this.props.players.length][state.turn];
-				return "Вы лидер! Выбирайте "+players+" игроков";
+				return "Вы лидер! Выбирайте "+players+" "+playersName;
 			} else {
-				"Лидер выбирает "+players+" игроков";
+				return "Лидер выбирает "+players+" "+playersName;
 			}
+		} else if(state.gameState==='missionWait' 
+			|| state.gameState==='voteMission'){//Ожидание миссии
+			return "Команда на миссии";
+		} else if(state.gameState==='chooseWait' 
+		|| state.gameState==='voteTeam'){//Ожидание голосования
+			return "Ждем пока другие игроки проголосуют";
+		} else {
+			return state.gameState;
 		}
 	}
 
