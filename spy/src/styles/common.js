@@ -37,7 +37,7 @@ export const GameWait_PlayersList_Kick_FontSize = 25;
 export const Game_Background = '#831e00';
 
 export const Game_Events_Width = 350;
-export const Game_Events_Height = 250;
+export const Game_Events_Height = 300;
 export const Game_Events_Background = 'white';
 export const Game_Events_BorderBackground = 'black';
 export const Game_Events_BorderWidth = 1;
@@ -77,6 +77,11 @@ export const Game_Turns_Turn_Background = '#ffffff';
 export const Game_Turns_Turn_Border_Background = '#b9b9b9';
 export const Game_Turns_Turn_BorderRadius = 30;
 export const Game_Turns_Turn_BorderWidth = 10;
+
+export const PlayerChatIcon_Size = 18;
+export const PLayerChatIcon_BorderRadius = PlayerChatIcon_Size/2;
+export const PlayerChatIcon_BorderWidth = 1;
+export const PlayerChatIcon_BorderColor = '#831e00';
 
 export const TextInput_Height = 50;
 export const TextInput_BorderWidth = 1;

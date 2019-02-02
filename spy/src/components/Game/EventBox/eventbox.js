@@ -1,10 +1,14 @@
 import React from 'react';
 import {ScrollView, View, Text, StyleSheet} from 'react-native';
-
+import PlayerChatIcon from '../../Pure/PlayerChatIcon/PlayerChatIcon.js';
 
 class EventBox extends React.Component {
 	constructor() {
 		super();
+		this.state={
+			scrollYmax:0,
+			scrollY:0
+		};
 	}
 
 	getEvents() {
@@ -13,9 +17,12 @@ class EventBox extends React.Component {
 		return this.props.events.map((key,index)=>{
 			if(key.type==='message'){
 				return(
-					<Text key={index} style={styles.Message}>
-						{key.message}
-					</Text>
+					<View key={index} style={styles.Message}>
+						<PlayerChatIcon number={key.player+1}/>
+						<Text  style={styles.MessageText}>
+							:{key.message}
+						</Text>
+					</View>
 				);
 			} else if(key.type==='mission'){
 				if(key.result==='accept'){
@@ -47,12 +54,16 @@ class EventBox extends React.Component {
 				}
 			} else if(key.type==='acceptTeam'){
 				return(
-					<Text key={index} style={styles.AcceptTeam}>
-						Состав из {key.chosen.map((key,index)=>{
+					<View key={index} style={styles.AcceptTeam}>
+						<Text style={styles.AcceptTeamText}>Состав из </Text>
+						{key.chosen.map((key,index)=>{
 							if(key)
-								return index+1;
-						})} принят
-					</Text>
+								return(
+									<PlayerChatIcon key={index} number={index+1}/>
+								);
+						})} 
+						<Text style ={styles.AcceptTeamText}> выбран</Text>
+					</View>
 				);
 			} else {
 				return(
@@ -64,9 +75,30 @@ class EventBox extends React.Component {
 		});
 	}
 
+	onScroll = (event) => {
+		let height=event.nativeEvent.contentOffset.y;
+		if(height>this.state.scrollY){
+			this.setState({
+				scrollYmax:height,
+				scrollY:height
+			});
+		} else {
+			this.setState({
+				scrollY:height
+			});
+		}
+	}
+
+	onContentSizeChange = (width,height) => {
+		if(this.state.scrollY===this.state.scrollYmax)
+			this.refs.scrollView.scrollTo({y:height});
+	}
+
 	render() {
 		return (
-			<ScrollView>
+			<ScrollView onContentSizeChange={this.onContentSizeChange}
+			onScroll={this.onScroll}
+			ref="scrollView">
 				{this.getEvents()}
 			</ScrollView>
 		);
@@ -77,9 +109,20 @@ export default EventBox;
 
 const styles=StyleSheet.create({
 	Message:{
+		marginLeft: 10,
+		marginTop: 5,
+		flexDirection: 'row',
+		alignItems: 'center'
+	},
+	MessageText:{
+		fontSize: 15,
 	},
 	AcceptTeam:{
-		alignSelf: 'center'
+		alignSelf: 'center',
+		flexDirection: 'row',
+	},
+	AcceptTeamText:{
+		fontSize: 15,
 	},
 	ChooseAccept:{
 		alignSelf: 'center',

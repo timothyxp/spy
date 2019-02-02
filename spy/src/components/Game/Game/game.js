@@ -139,7 +139,7 @@ class Game extends React.Component {
 									else
 										reject++;
 								}
-								if(accept===1/*accept>=reject*/){
+								if(accept>=reject){
 									gameState='voteMission';
 									if(eventshappend[item.turn][item.team]
 										==='acceptTeam'){
@@ -183,7 +183,7 @@ class Game extends React.Component {
 											reject++;
 									}	
 								}
-								if(reject>=1/*accept>=reject*/){
+								if(accept===0/*reject>=1*/){
 									results[turn]='reject';
 									gameState='choose';
 									spyWins++;
@@ -339,7 +339,8 @@ class Game extends React.Component {
 			gametable.push({
 				type:'message',
 				message:this.state.currentmessage,
-				turn:this.state.turn
+				turn:this.state.turn,
+				player:this.state.number
 			});
 	
 			this.setState({
@@ -428,6 +429,7 @@ class Game extends React.Component {
 						}
 					</View>
 					<View style={styles.Players}>
+						<ScrollView>
 						{Object.keys(this.props.players).map((key,index)=>{
 							return(
 								<TouchableOpacity key={index} 
@@ -441,6 +443,7 @@ class Game extends React.Component {
 								</TouchableOpacity>
 							);	
 						})}
+						</ScrollView>
 					</View>
 				</View>
 				{
