@@ -25,6 +25,7 @@ class Game extends React.Component {
 
 		this.state = {
 			events:[],
+			eventshappend:[],
 			currentmessage:'',
 			roles:[],
 			number:number,
@@ -73,7 +74,13 @@ class Game extends React.Component {
 			let items=snapshot.val();
 
 			if(items){
-				let events=[];
+				let events=this.state.events;
+				let Messages=new Set();
+				this.state.events.map((key)=>{
+					if(key.type==='message')
+						Messages.add(key.key);
+				});
+				let eventshappend=this.state.eventshappend;
 				let roles=[];
 				let gameState=this.state.gameState;
 				let lastState=this.state.gameState;
@@ -93,11 +100,18 @@ class Game extends React.Component {
 				Object.keys(items).sort().forEach((key)=>{
 					let item=items[key];
 					if(item.type==='message'){
-						events.push(item);
+						if(!Messages.has(key)){
+							events.push({...item,...{key:key}});
+						}
 					} else if(item.type==='roles') {
 						roles=item.roles;
 					} else if(item.type==='acceptTeam') {
-						events.push(item);
+						if(!eventshappend[item.turn])
+							eventshappend[item.turn]=[];
+						if(!eventshappend[item.turn][item.team]){
+							events.push(item);
+							eventshappend[item.turn][item.team]='acceptTeam';
+						}
 						if(item.turn>turn || 
 						(item.turn===turn && item.team>team)){
 							Missionvotes=[];
@@ -127,17 +141,24 @@ class Game extends React.Component {
 								}
 								if(accept===1/*accept>=reject*/){
 									gameState='voteMission';
-									events.push({
-										type:'choose',
-										result:'accept'
-									});
+									if(eventshappend[item.turn][item.team]
+										==='acceptTeam'){
+										eventshappend[item.turn][item.team]='choose';
+										events.push({
+											type:'choose',
+											result:'accept'
+										});
+									}
 								} else {
 									gameState='choose';
-									team++;
-									events.push({
-										type:'choose',
-										result:'reject'
-									});
+									if(eventshappend[item.turn][item.team]
+										==='acceptTeam'){
+										eventshappend[item.turn][item.team]='choose';
+										events.push({
+											type:'choose',
+											result:'reject'
+										});
+									}
 									//picker=(picker+1)%playersNumber;
 								}
 							}
@@ -167,19 +188,27 @@ class Game extends React.Component {
 									gameState='choose';
 									spyWins++;
 									turn++;
-									events.push({
-										type:'mission',
-										result:'reject'
-									});
+									team=0;
+									if(eventshappend[item.turn][item.team]==='choose'){
+										eventshappend[item.turn][item.team]='misiion';
+										events.push({
+											type:'mission',
+											result:'reject'
+										});
+									}
 								} else {
 									results[turn]='accept';
 									gameState='choose';
 									turn++;
 									resWins++;
-									events.push({
-										type:'mission',
-										result:'accept'
-									});
+									team=0;
+									if(eventshappend[item.turn][item.team]==='choose'){
+										eventshappend[item.turn][item.team]='misiion';
+										events.push({
+											type:'mission',
+											result:'accept'
+										});
+									}
 									//picker=(picker+1)%playersNumber;
 								}
 							}
@@ -209,7 +238,8 @@ class Game extends React.Component {
 					picker:picker,
 					spyWins:spyWins,
 					resWins:resWins,
-					results:results
+					results:results,
+					eventshappend:eventshappend
 				});
 				
 				if(gameState==='voteTeam') {
