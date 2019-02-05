@@ -131,7 +131,7 @@ class TableWait extends React.Component {
 		});
 		this.props.admin && this.props.tableRef.remove();
 
-		this.props.router.stack[1].replace.Game({
+		this.props.router.stack[0].replace.Game({
 			userId:this.state.userId,
 			tableId:this.props.tableId,
 			admin:this.props.admin,

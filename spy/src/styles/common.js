@@ -70,6 +70,12 @@ export const Game_Players_Height = 250;
 export const Game_Players_BorderWidth = 1;
 export const Game_Players_BorderColor = 'black';
 export const Game_Players_BorderRadius = 10;
+export const Game_Players_ChosenColor = '#04FA5FB6';
+
+export const Game_PlayerRow_Width = 220;
+export const Game_PlayerRow_BorderColor = '#26232f';
+export const Game_PlayerRow_MarginTop = 4;
+export const Game_PlayerRow_Height = 40;
 
 export const Game_Turns_Height = 60;
 export const Game_Turns_Turn_Width = 50;
@@ -77,6 +83,14 @@ export const Game_Turns_Turn_Background = '#ffffff';
 export const Game_Turns_Turn_Border_Background = '#b9b9b9';
 export const Game_Turns_Turn_BorderRadius = 30;
 export const Game_Turns_Turn_BorderWidth = 10;
+
+export const FinishGame_Events_Width = 350;
+export const FinishGame_Events_Height = 200;
+export const FinishGame_Events_Background = 'white';
+export const FinishGame_Events_BorderBackground = 'black';
+export const FinishGame_Events_BorderWidth = 1;
+export const FinishGame_Events_BorderRadius = 10;
+export const FinishGame_Events_MarginBottom = 10;
 
 export const PlayerChatIcon_Size = 18;
 export const PLayerChatIcon_BorderRadius = PlayerChatIcon_Size/2;

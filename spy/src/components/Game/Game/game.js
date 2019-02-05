@@ -3,6 +3,7 @@ import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import Input from '../../Pure/TextInput/textinput.js';
 import EventBox from '../EventBox/eventbox.js';
 import StateBox from '../StateBox/statebox.js';
+import PlayersList from '../PlayersList/playerslist.js';
 
 import rules from './gamerules.json';
 
@@ -130,7 +131,7 @@ class Game extends React.Component {
 								votes[num]=item.result;
 								votesNumber++;
 							}
-							if(votesNumber===1/*playersNumber*/){
+							if(votesNumber===playersNumber){
 								let accept=0;
 								let reject=0;
 								for(let i=0;i<playersNumber;i++){
@@ -159,7 +160,7 @@ class Game extends React.Component {
 											result:'reject'
 										});
 									}
-									//picker=(picker+1)%playersNumber;
+									picker=(picker+1)%playersNumber;
 								}
 							}
 						}
@@ -172,7 +173,7 @@ class Game extends React.Component {
 								missionVotesNumber++;
 							}
 							let spy=rules[playersNumber][turn];
-							if(missionVotesNumber===1/*spy*/){
+							if(missionVotesNumber===spy){
 								let accept=0;
 								let reject=0;
 								for(let i=0;i<playersNumber;i++){
@@ -183,7 +184,7 @@ class Game extends React.Component {
 											reject++;
 									}	
 								}
-								if(accept===0/*reject>=1*/){
+								if(reject>=1){
 									results[turn]='reject';
 									gameState='choose';
 									spyWins++;
@@ -209,7 +210,7 @@ class Game extends React.Component {
 											result:'accept'
 										});
 									}
-									//picker=(picker+1)%playersNumber;
+									picker=(picker+1)%playersNumber;
 								}
 							}
 						}
@@ -218,29 +219,20 @@ class Game extends React.Component {
 
 				if(spyWins === 3 || resWins === 3){
 					setTimeout(() => {
-						this.props.router.push.FinishGame({
+						this.props.router.stack[0].replace.FinishGame({
 							roles:roles,
 							tableId:this.props.tableId,
 							spyWins:spyWins,
-							resWins:resWins
+							resWins:resWins,
+							players:this.props.players,
+							roles:this.state.roles,
+							number:this.state.number
 						});
 					}	
 					,1000);
 				}
 
-				this.setState({
-					roles:roles,
-					events:events,
-					turn:turn,
-					team:team,
-					gameState:gameState,
-					chosenTeam:chosenTeam,
-					picker:picker,
-					spyWins:spyWins,
-					resWins:resWins,
-					results:results,
-					eventshappend:eventshappend
-				});
+				console.log(turn,team,gameState);
 				
 				if(gameState==='voteTeam') {
 					this.props.router.push.GameVote({
@@ -254,6 +246,7 @@ class Game extends React.Component {
 					{
 						type:'none'
 					});
+					gameState='chooseWait';
 				}
 
 				if(gameState==='voteMission') {
@@ -271,14 +264,30 @@ class Game extends React.Component {
 						});
 						}
 					,1000);
+					gameState='misiionWait';
 				}
+
+				this.setState({
+					roles:roles,
+					events:events,
+					turn:turn,
+					team:team,
+					gameState:gameState,
+					chosenTeam:chosenTeam,
+					picker:picker,
+					spyWins:spyWins,
+					resWins:resWins,
+					results:results,
+					eventshappend:eventshappend
+				});
 			}
 		});
 	}
 
 	VoteTeam = (result,turn,team) => {
-		
-		this.props.router.pop();
+
+		this.props.router.pop()
+
 
 		let gametable=database().ref('game/'+this.props.tableId);
 
@@ -296,8 +305,7 @@ class Game extends React.Component {
 	}
 
 	VoteMission = (result,turn,team) => {
-		
-		this.props.router.pop();
+		this.props.router.pop()
 
 		let gametable=database().ref('game/'+this.props.tableId);
 
@@ -332,7 +340,7 @@ class Game extends React.Component {
 		return this.props.players[this.state.number];
 	}
 
-	handleSubmitMessage = (event, any) => {
+	handleSubmitMessage = (event) => {
 		let gametable=database().ref('game/'+this.props.tableId);
 
 		if(this.state.currentmessage.length!==0){
@@ -403,7 +411,6 @@ class Game extends React.Component {
 			chosenNumber:0
 		});
 	}
-
 	
 	render() {
 		return(
@@ -428,23 +435,10 @@ class Game extends React.Component {
 						:<View></View>
 						}
 					</View>
-					<View style={styles.Players}>
-						<ScrollView>
-						{Object.keys(this.props.players).map((key,index)=>{
-							return(
-								<TouchableOpacity key={index} 
-								style={this.state.chosen[index] 
-									? styles.PlayerRowChosen
-									:styles.PlayerRow}
-								onPress={this.ChoosePlayer.bind(this,index)}>
-									<Text>
-									{index+1}.{this.props.players[key]}
-									</Text>
-								</TouchableOpacity>
-							);	
-						})}
-						</ScrollView>
-					</View>
+					<PlayersList players={this.props.players}
+					chosen={this.state.chosen}
+					ChoosePlayer={this.ChoosePlayer}
+					type='game'/>
 				</View>
 				{
 				/*<View style={styles.Turns}>
