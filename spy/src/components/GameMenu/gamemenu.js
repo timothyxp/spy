@@ -23,7 +23,7 @@ class GameMenu extends React.Component {
 			"?userId="+this.props.userId);
 
 		socket.onopen = function() {
-  			alert("Соединение установлено.");
+  			console.log("Соединение установлено.");
 		};
 
 		socket.onclose = function(event) {
@@ -62,15 +62,19 @@ class GameMenu extends React.Component {
 		let tableRef = database().ref('tables');
 		let tableId=Math.floor(Math.random()*(1e9));
 
-		let NewTableRef = tableRef.push({
+		let NewTable={
 			tableId:tableId,
 			size:1,
 			players:0
-		});
+		}
+
+		let NewTableRef = tableRef.push(NewTable);
+
+		socket.send(JSON.stringify(NewTable));
 
 		let tables=database().ref('tables');
 
-		tables.off();
+		//tables.off();
 
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
@@ -88,7 +92,7 @@ class GameMenu extends React.Component {
 			return;
 		let tables=database().ref('tables');
 
-		tables.off();
+		//tables.off();
 
 		this.props.router.push.TableWait({
 			tableRef:database().ref('tables/'+key),
