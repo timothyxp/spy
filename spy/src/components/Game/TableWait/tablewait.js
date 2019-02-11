@@ -10,7 +10,7 @@ class TableWait extends React.Component {
 		super();
 		this.state = {
 			userId:'none',
-			places:2,
+			places:1,
 			players:[]
 		}
 	}
@@ -30,7 +30,7 @@ class TableWait extends React.Component {
 		wait.on('value', snapshot => {
 			let items = snapshot.val();
 
-			let places = 2;
+			let places = 1;
 			let players = new Set();
 			let start=false;
 

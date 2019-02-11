@@ -1,10 +1,13 @@
 import React from 'react';
 import {Text, View,
  TouchableOpacity, ScrollView, Image} from 'react-native';
-
 import {styles} from './gamemenustyle.js';
 
+import server from '../../../server.json';
+
 import database from '../../firebase/firebase.js';
+
+let socket;
 
 class GameMenu extends React.Component {
 	constructor() {
@@ -15,6 +18,31 @@ class GameMenu extends React.Component {
 	}
 
 	componentDidMount() {
+		socket = new WebSocket("ws:"+server.adress+
+			"/tables"+
+			"?userId="+this.props.userId);
+
+		socket.onopen = function() {
+  			alert("Соединение установлено.");
+		};
+
+		socket.onclose = function(event) {
+		  	if (event.wasClean) {
+		    	console.log('Соединение закрыто чисто');
+		  	} else {
+		    	console.log('Обрыв соединения'); // например, "убит" процесс сервера
+		  	}
+		  	console.log('Код: ' + event.code + ' причина: ' + event.reason);
+		};
+			
+		socket.onmessage = function(event) {
+		  console.log("Получены данные " + event.data);
+		};
+			
+		socket.onerror = function(error) {
+		  console.log("Ошибка " + error.message);
+		};
+
 		let tableRef = database().ref('tables');
 
 		tableRef.on('value', snapshot => {
@@ -26,13 +54,17 @@ class GameMenu extends React.Component {
 		});
 	}
 
+	componentWillUnmount() {
+		socket.close();
+	}
+
 	AddTable = () => {
 		let tableRef = database().ref('tables');
 		let tableId=Math.floor(Math.random()*(1e9));
 
 		let NewTableRef = tableRef.push({
 			tableId:tableId,
-			size:2,
+			size:1,
 			players:0
 		});
 
@@ -45,7 +77,7 @@ class GameMenu extends React.Component {
 			tableNumber:Object.keys(this.state.tables).length + 1,
 			tableId:tableId,
 			admin:true,
-			size:5
+			size:1
 		});
 	}
 

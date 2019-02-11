@@ -41,7 +41,7 @@ export default class App extends Component {
   componentDidMount() {
     this.GetId()
     .then(value=>{
-      if(false && value!==null){
+      if(value!==null){
         this.setState({
           userId:value
         });
