@@ -72,9 +72,7 @@ class GameMenu extends React.Component {
 
 		socket.send(JSON.stringify(NewTable));
 
-		let tables=database().ref('tables');
-
-		//tables.off();
+		//tableRef.off();
 
 		this.props.router.push.TableWait({
 			tableRef:NewTableRef,
