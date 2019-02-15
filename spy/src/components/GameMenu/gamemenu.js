@@ -21,28 +21,25 @@ class GameMenu extends React.Component {
 		socket = new WebSocket("ws:"+server.adress+
 			"/tables"+
 			"?userId="+this.props.userId);
-
-		socket.onopen = function() {
-  			console.log("Соединение установлено.");
-		};
-
-		socket.onclose = function(event) {
-		  	if (event.wasClean) {
-		    	console.log('Соединение закрыто чисто');
-		  	} else {
-		    	console.log('Обрыв соединения'); // например, "убит" процесс сервера
-		  	}
-		  	console.log('Код: ' + event.code + ' причина: ' + event.reason);
-		};
 			
-		socket.onmessage = function(event) {
-		  console.log("Получены данные " + event.data);
+		socket.onmessage = event => {
+			console.log("Получены данные " + event.data);
+			let items=JSON.parse(event.data)
+			if(items.type!==undefined){
+				if(items.type=="Connect"){
+					this.props.router.push.TableWait({
+						tableId:items.tableId,
+						admin:false,
+						userId:this.props.userId
+					});
+				}
+			} else {
+				this.setState({
+					tables:{...items}
+				});
+			}
 		};
-			
-		socket.onerror = function(error) {
-		  console.log("Ошибка " + error.message);
-		};
-
+		/*firebase 
 		let tableRef = database().ref('tables');
 
 		tableRef.on('value', snapshot => {
@@ -51,7 +48,7 @@ class GameMenu extends React.Component {
 			this.setState({
 				tables:{...this.state.tables,...items}
 			});
-		});
+		});*/
 	}
 
 	componentWillUnmount() {
@@ -59,27 +56,32 @@ class GameMenu extends React.Component {
 	}
 
 	AddTable = () => {
-		let tableRef = database().ref('tables');
+		
 		let tableId=Math.floor(Math.random()*(1e9));
 
 		let NewTable={
+			type:"NewTable",
 			tableId:tableId,
-			size:1,
+			size:2,
 			players:0
 		}
 
-		let NewTableRef = tableRef.push(NewTable);
-
 		socket.send(JSON.stringify(NewTable));
+
+		/*firebase
+		let tableRef = database().ref('tables');
+		let NewTableRef = tableRef.push(NewTable);*/
 
 		//tableRef.off();
 
 		this.props.router.push.TableWait({
-			tableRef:NewTableRef,
+			/*tableRef:NewTableRef,*/
+			userId:this.props.userId,
 			tableNumber:Object.keys(this.state.tables).length + 1,
 			tableId:tableId,
 			admin:true,
-			size:1
+			size:1,
+			socket:socket
 		});
 	}
 
@@ -88,7 +90,16 @@ class GameMenu extends React.Component {
 		let table=this.state.tables[key];
 		if(table.size <= table.players)
 			return;
-		let tables=database().ref('tables');
+
+		let Connect={
+			type:"TableConnect",
+			tableId:table.tableId,
+			playerId:Number(this.props.userId)
+		}
+
+		socket.send(JSON.stringify(Connect));
+
+		/*let tables=database().ref('tables');
 
 		//tables.off();
 
@@ -98,7 +109,7 @@ class GameMenu extends React.Component {
 			tableId:table.tableId,
 			admin:false,
 			size:table.size
-		});
+		});*/
 	}
 
 	render() {

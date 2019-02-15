@@ -4,28 +4,39 @@ import {View, Text, AsyncStorage, ScrollView, TouchableOpacity} from 'react-nati
 import {styles} from './tablewaitstyle.js';
 
 import database from '../../../firebase/firebase.js';
+import server from '../../../../server.json';
+
+let socket;
 
 class TableWait extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
-			userId:'none',
+			userId:this.props.userId,
 			places:1,
 			players:[]
 		}
 	}
 
-	 async GetId() {
-    	try {
-    	  const value = await AsyncStorage.getItem('@spy:id');
-    	  return value;
-    	} catch(error) {
-    	  console.log('Cant get ID:' + error);
-		}
-  	}
-
 	componentDidMount() {
-		this._isMounted = true;
+		socket=new WebScoket("ws:"+server.adress+
+			"/waiters"
+			+"?userId="+this.state.userId+
+			"&tableId="+this.props.tableId);
+
+		socket.onmessage = event => {
+			console.log("получены данные",event.data);
+			let items=JSON.parse(event.data);
+			if(items.type!==undefined){
+				
+			} else {
+				this.setState({
+					players:players
+				});
+			}
+		}
+		
+		/* firebase
 		let wait=database().ref('wait/'+this.props.tableId);
 		wait.on('value', snapshot => {
 			let items = snapshot.val();
@@ -74,22 +85,14 @@ class TableWait extends React.Component {
 			});
 		});
 
-		this.GetId()
-		.then(value => {
-			this.setState({
-				userId:value
-			});
-			return value;
-		}).then(value => {
-			wait.push({
-				type:'new',
-				userId:this.state.userId
-			});
-		});
+		wait.push({
+			type:'new',
+			userId:this.state.userId
+		});*/
 	}
 
 	componentWillUnmount() {
-		let wait = database().ref('wait/'+this.props.tableId);
+		/*let wait = database().ref('wait/'+this.props.tableId);
 
 		wait.off();
 
@@ -101,7 +104,7 @@ class TableWait extends React.Component {
 				type:'leave',
 				userId:this.state.userId
 			});
-		}
+		}*/
 	}
 
 	KickPlayer = (userId, event) => {
