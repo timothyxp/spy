@@ -9,6 +9,8 @@ import (
 	"sync"
 )
 
+const MaxPlayers int = 10
+
 type Table struct {
 	TableId int64 `json:"tableId,int64"`
 	Players int   `json:"players,int"`
@@ -31,7 +33,7 @@ type Event struct {
 func (this *Client) Send(data []byte) {
 	err := this.conn.WriteMessage(1, data)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("cant send to user:", this.userId, err)
 	}
 }
 
@@ -69,12 +71,18 @@ func DeletePlayer(userId int64) {
 func ConnectToTable(userId int64, tableId int64) {
 	MapMutex.Lock()
 	defer MapMutex.Unlock()
-	table := TablesPlayers[tableId]
-	if table.Players == table.Size {
+	var table, ok = TablesPlayers[tableId]
+	if !ok {
+		fmt.Println("dont exist table:", tableId)
 		return
 	}
+	if table.Players == table.Size {
+		fmt.Println("table full:", tableId)
+		return
+	}
+	Tables[tableId][table.Players] = userId
 	table.Players++
-	Tables[tableId] = append(Tables[tableId], userId)
+	TablesPlayers[tableId] = table
 
 	Connect := Event{
 		Type:    "Connect",
@@ -99,7 +107,10 @@ func NewTable(table *Table) {
 	MapMutex.Lock()
 	defer MapMutex.Unlock()
 	TablesPlayers[table.TableId] = *table
-	Tables[table.TableId] = append(Tables[table.TableId], table.Admin)
+	Tables[table.TableId] = make([]int64, table.Size, MaxPlayers)
+	for i := 0; i < table.Size; i++ {
+		Tables[table.TableId][i] = int64(-1)
+	}
 	go UpdateTables()
 }
 
@@ -107,16 +118,22 @@ func DeleteTable(tableId int64) {
 	MapMutex.Lock()
 	defer MapMutex.Unlock()
 	wg := &sync.WaitGroup{}
-	for _, playerId := range Tables[tableId] {
+	DissconectEvent := Event{
+		Type: "Dissconect",
+	}
+	EventJson, _ := json.Marshal(DissconectEvent)
+	for _, player := range Waiters[tableId] {
 		wg.Add(1)
 		go func(player Client) {
 			defer wg.Done()
-			player.Send([]byte("DiscconectTable"))
-		}(PlayersConnected[playerId])
+			player.Send(EventJson)
+		}(player)
 	}
 	delete(Tables, tableId)
 	delete(TablesPlayers, tableId)
+	delete(Waiters, tableId)
 	wg.Wait()
+	go UpdateTables()
 }
 
 func TablesHandler(w http.ResponseWriter, r *http.Request) {
@@ -166,52 +183,10 @@ func TablesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func WaitersHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	userId, err := strconv.ParseInt(r.URL.Query().Get("userId"), 10, 64)
-	if err != nil {
-		fmt.Println("cant convert userID:", err)
-		return
-	}
-	tableId, err := strconv.ParseInt(r.URL.Query().Get("tableId"), 10, 64)
-	if err != nil {
-		fmt.Println("cant convert tableID:", err)
-		return
-	}
-
-	fmt.Println("user:", userId, "connect to socket table:", tableId)
-
-	defer func() {
-		fmt.Println("user:", userId, "unconnect from table:", tableId)
-		r.Body.Close()
-	}()
-
-	for {
-		_, event, err := conn.ReadMessage()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		EventType := &Event{}
-		json.Unmarshal(event, EventType)
-		fmt.Printf("%#v\n", EventType)
-		switch EventType.Type {
-		case "NewPlace":
-		case "Kick":
-		case "DeletePlace":
-		case "Start":
-		}
-	}
-}
-
 func UpdateTables() {
 	MapMutex.Lock()
 	defer MapMutex.Unlock()
+	fmt.Println("Start Update Tables")
 	wg := &sync.WaitGroup{}
 	sendTables, err := json.Marshal(TablesPlayers)
 	if err != nil {

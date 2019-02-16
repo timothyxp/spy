@@ -39,16 +39,6 @@ class GameMenu extends React.Component {
 				});
 			}
 		};
-		/*firebase 
-		let tableRef = database().ref('tables');
-
-		tableRef.on('value', snapshot => {
-			let items = snapshot.val();
-
-			this.setState({
-				tables:{...this.state.tables,...items}
-			});
-		});*/
 	}
 
 	componentWillUnmount() {
@@ -56,7 +46,6 @@ class GameMenu extends React.Component {
 	}
 
 	AddTable = () => {
-		
 		let tableId=Math.floor(Math.random()*(1e9));
 
 		let NewTable={
@@ -67,15 +56,7 @@ class GameMenu extends React.Component {
 		}
 
 		socket.send(JSON.stringify(NewTable));
-
-		/*firebase
-		let tableRef = database().ref('tables');
-		let NewTableRef = tableRef.push(NewTable);*/
-
-		//tableRef.off();
-
 		this.props.router.push.TableWait({
-			/*tableRef:NewTableRef,*/
 			userId:this.props.userId,
 			tableNumber:Object.keys(this.state.tables).length + 1,
 			tableId:tableId,
@@ -98,18 +79,6 @@ class GameMenu extends React.Component {
 		}
 
 		socket.send(JSON.stringify(Connect));
-
-		/*let tables=database().ref('tables');
-
-		//tables.off();
-
-		this.props.router.push.TableWait({
-			tableRef:database().ref('tables/'+key),
-			tableNumber:index+1,
-			tableId:table.tableId,
-			admin:false,
-			size:table.size
-		});*/
 	}
 
 	render() {

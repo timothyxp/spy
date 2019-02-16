@@ -12,14 +12,14 @@ class TableWait extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			userId:this.props.userId,
+			userId:Number(this.props.userId),
 			places:1,
 			players:[]
 		}
 	}
 
 	componentDidMount() {
-		socket=new WebScoket("ws:"+server.adress+
+		socket=new WebSocket("ws:"+server.adress+
 			"/waiters"
 			+"?userId="+this.state.userId+
 			"&tableId="+this.props.tableId);
@@ -31,98 +31,37 @@ class TableWait extends React.Component {
 				
 			} else {
 				this.setState({
-					players:players
+					players:{...items}
 				});
 			}
 		}
-		
-		/* firebase
-		let wait=database().ref('wait/'+this.props.tableId);
-		wait.on('value', snapshot => {
-			let items = snapshot.val();
-
-			let places = 1;
-			let players = new Set();
-			let start=false;
-
-			if(items) {
-				Object.keys(items).sort().forEach((key) => {
-					let item=items[key];
-					if(item.type === 'new') {
-						players.add(item.userId);
-					} else if(item.type === 'leave') {
-						players.delete(item.userId);
-					} else if(item.type === 'newPlace') {
-						places++;
-					} else if(item.type === 'erasePlace'){
-						places--;
-					} else if(item.type === 'start'){
-						this.Start();
-						start=true;
-					}
-				});
-			}
-			if(!start && !players.has(this.state.userId)){
-				this.props.router.pop();
-			}
-
-			let playersAll=Array.from(players);
-			let pl=playersAll.length;
-
-			this.props.admin && this.props.tableRef.set({
-				tableId:this.props.tableId,
-				size:places,
-				players:playersAll.length
-			});
-
-			for(let i=1; i <= places-players.size; i++) {
-				playersAll.push(-1);
-			}
-			
-			this.setState({
-				places:pl,
-				players:playersAll
-			});
-		});
-
-		wait.push({
-			type:'new',
-			userId:this.state.userId
-		});*/
 	}
 
 	componentWillUnmount() {
-		/*let wait = database().ref('wait/'+this.props.tableId);
-
-		wait.off();
-
-		if(this.state.places === 1 || this.props.admin){
-			//wait.remove();
-			this.props.tableRef.remove();
-		} else {
-			wait.push({
-				type:'leave',
-				userId:this.state.userId
-			});
-		}*/
+		socket.close();
 	}
 
 	KickPlayer = (userId, event) => {
 		event.preventDefault();
-		let wait=database().ref('wait/'+this.props.tableId);
-		wait.push({
-			type:'leave',
-			userId:userId
-		});
+		if(userId===-1){
+			socket.send(JSON.stringify({
+				type:"DeletePlace"
+			}));
+		} else {
+			let Kick={
+				type:"Kick",
+				userId:userId
+			};
+			socket.send(JSON.stringify(Kick));
+		}
 	}
 
 	AddPlace = () => {
 		if(this.state.players.length === 10)
 			return;
-		let wait=database().ref('wait/'+this.props.tableId);
-		wait.push({
-			type:'newPlace'
-		});
+		socket.send(JSON.stringify({
+			type:"AddPlace"
+		}));
 	}
 
 	Start = () => {
@@ -144,7 +83,6 @@ class TableWait extends React.Component {
 
 	render() {
 		let players = this.state.players;
-
 		return(
 			<View style={styles.TableWait}>
 				<View style={styles.Header}>
@@ -157,7 +95,8 @@ class TableWait extends React.Component {
 					</TouchableOpacity>
 					<View style={styles.PlayerList}>
 						<ScrollView>
-						{players.map((key,index)=>{
+						{Object.keys(players).map((index)=>{
+							let key=players[index];
 							if(key !== -1) {
 								return <View key={index} style={styles.Player}>
 									<Text style={styles.PlayerText}>User{key}</Text>
@@ -168,15 +107,11 @@ class TableWait extends React.Component {
 								</View>
 							} else {
 								return <View key={index} style={styles.PlayerNone}>
+									<Text style={styles.Kick} 
+									onPress={this.KickPlayer.bind(this,key)}>X</Text>
 								</View>
 							}
 						})}
-						<Text onPress={
-						/*()=>database().ref('wait/'+this.props.tableId).remove()*/
-						()=>database().ref('wait/'+this.props.tableId).push({
-						type:'new',
-						userId:Math.floor(Math.random()*1e9)
-						})}>Test Button</Text>
 						</ScrollView>
 					</View>
 					<TouchableOpacity style={styles.AddPlace}
