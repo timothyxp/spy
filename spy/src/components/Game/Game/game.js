@@ -10,6 +10,9 @@ import rules from './gamerules.json';
 import {styles} from './gamestyle.js';
 
 import database from '../../../firebase/firebase.js';
+import server from '../../../../server.json';
+
+let socket;
 
 class Game extends React.Component {
 	constructor(props) {
@@ -17,12 +20,14 @@ class Game extends React.Component {
 
 		let number=0;
 		let chosen=[];
-		for(let i=0;i<this.props.players.length;++i){
-			if(this.props.players[i]==this.props.userId){
-				number=i;
+		let players=[]
+		Object.keys(this.props.players).map(index=>{
+			if(this.props.players[index]==this.props.userId){
+				number=index;
 			}
+			players.push(this.props.players[index]);
 			chosen.push(false);
-		}
+		});
 
 		this.state = {
 			events:[],
@@ -40,15 +45,26 @@ class Game extends React.Component {
 			spyWins:0,
 			resWins:0,
 			userId:this.props.userId,
-			results:[]
+			results:[],
+			userId:this.props.userId,
+			players:players
 		};
 	}
 
 	componentDidMount() {
+		socket = new WebSocket("ws:"+server.adress+
+			"/game"+
+			"?userId="+this.state.userId+
+			"&tableId="+this.props.tableId);
+
+		socket.onmessage = event=>{
+
+		}
+
 		let gametable=database().ref('game/'+this.props.tableId);
 
 		if(this.props.admin) {
-			let players = this.props.players.length;
+			let players = this.state.players.length;
 			let roles = [];
 			let spy=rules[players].spy;
 
@@ -90,7 +106,7 @@ class Game extends React.Component {
 				let chosenTeam=this.state.chosenTeam;
 				let votes=[];
 				let votesNumber=0;
-				let playersNumber=this.props.players.length;
+				let playersNumber=this.state.players.length;
 				let picker=this.state.picker;
 				let missionVotes=[];
 				let missionVotesNumber=0;
@@ -224,7 +240,7 @@ class Game extends React.Component {
 							tableId:this.props.tableId,
 							spyWins:spyWins,
 							resWins:resWins,
-							players:this.props.players,
+							players:this.state.players,
 							roles:this.state.roles,
 							number:this.state.number
 						});
@@ -238,7 +254,7 @@ class Game extends React.Component {
 					this.props.router.push.GameVote({
 						type:'Team',
 						handleSubmit:this.VoteTeam,
-						players:this.props.players,
+						players:this.state.players,
 						chosen:chosenTeam,
 						turn:turn,
 						team:team
@@ -255,7 +271,7 @@ class Game extends React.Component {
 						this.props.router.push.GameVote({
 							type:'Mission',
 							handleSubmit:this.VoteMission,
-							players:this.props.players,
+							players:this.state.players,
 							chosen:chosenTeam,
 							turn:turn,
 							team:team
@@ -287,7 +303,6 @@ class Game extends React.Component {
 	VoteTeam = (result,turn,team) => {
 
 		this.props.router.pop()
-
 
 		let gametable=database().ref('game/'+this.props.tableId);
 
@@ -337,7 +352,7 @@ class Game extends React.Component {
 	}
 
 	getId() {
-		return this.props.players[this.state.number];
+		return this.state.players[this.state.number];
 	}
 
 	handleSubmitMessage = (event) => {
@@ -385,11 +400,11 @@ class Game extends React.Component {
 
 	EnoughPlayers = () => {
 		return this.state.chosenNumber === 
-		rules[this.props.players.length][this.state.turn];
+		rules[this.state.players.length][this.state.turn];
 	}
 
 	AcceptTeam = () => {
-		let playersNumber=this.props.players.length;
+		let playersNumber=this.state.players.length;
 		if(rules[playersNumber][this.state.turn] !== this.state.chosenNumber)
 			return;
 		
@@ -417,7 +432,7 @@ class Game extends React.Component {
 			<View style={styles.Game}>
 				<View style={styles.Header}>
 					<StateBox state={this.state}
-					players={this.props.players}/>
+					players={this.state.players}/>
 				</View>
 				<View style={styles.Info}>
 					<View style={styles.LeftInfo}>
@@ -425,7 +440,7 @@ class Game extends React.Component {
 						</View>
 						{this.state.number===this.state.picker && 
 						this.state.gameState==='choose' ?
-						<TouchableOpacity style= {this.EnoughPlayers() 
+						<TouchableOpacity style = {this.EnoughPlayers()
 							? styles.AcceptTeamActive:
 							styles.AcceptTeamUnActive}
 						onPress={this.AcceptTeam}>
@@ -435,7 +450,7 @@ class Game extends React.Component {
 						:<View></View>
 						}
 					</View>
-					<PlayersList players={this.props.players}
+					<PlayersList players={this.state.players}
 					chosen={this.state.chosen}
 					ChoosePlayer={this.ChoosePlayer}
 					type='game'/>

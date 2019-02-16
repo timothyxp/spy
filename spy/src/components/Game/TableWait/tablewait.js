@@ -28,7 +28,14 @@ class TableWait extends React.Component {
 			console.log("получены данные",event.data);
 			let items=JSON.parse(event.data);
 			if(items.type!==undefined){
-				
+				if(items.type==="Start"){
+					this.props.router.stack[0].replace.Game({
+						userId:this.state.userId,
+						tableId:this.props.tableId,
+						admin:this.props.admin,
+						players:this.state.players
+					});
+				}
 			} else {
 				this.setState({
 					players:{...items}
@@ -65,20 +72,9 @@ class TableWait extends React.Component {
 	}
 
 	Start = () => {
-		let wait=database().ref('wait/'+this.props.tableId);
-
-		wait.off();
-		this.props.admin && wait.push({
-			type:'start'
-		});
-		this.props.admin && this.props.tableRef.remove();
-
-		this.props.router.stack[0].replace.Game({
-			userId:this.state.userId,
-			tableId:this.props.tableId,
-			admin:this.props.admin,
-			players:this.state.players
-		});
+		socket.send(JSON.stringify({
+			type:"Start"
+		}));	
 	}
 
 	render() {

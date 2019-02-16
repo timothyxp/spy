@@ -122,7 +122,33 @@ func KickPlayer(userId int64, tableId int64, kickUserId int64) {
 }
 
 func Start(userId int64, tableId int64) {
-
+	MapMutex.Lock()
+	defer MapMutex.Unlock()
+	table, ok := TablesPlayers[tableId]
+	if !ok {
+		fmt.Println("No table:", tableId)
+		return
+	}
+	if table.Admin != userId {
+		return
+	}
+	if table.Size != table.Players {
+		return
+	}
+	StartEvent := Event{
+		Type: "Start",
+	}
+	EventJson, _ := json.Marshal(StartEvent)
+	wg := &sync.WaitGroup{}
+	fmt.Println("table:", tableId, "start")
+	for _, player := range Waiters[tableId] {
+		wg.Add(1)
+		go func(player Client) {
+			defer wg.Done()
+			player.Send(EventJson)
+		}(player)
+	}
+	wg.Wait()
 }
 
 func WaitersHandler(w http.ResponseWriter, r *http.Request) {
