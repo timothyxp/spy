@@ -23,7 +23,7 @@ class Game extends React.Component {
 		let players=[]
 		Object.keys(this.props.players).map(index=>{
 			if(this.props.players[index]==this.props.userId){
-				number=index;
+				number=Number(index);
 			}
 			players.push(this.props.players[index]);
 			chosen.push(false);
@@ -55,37 +55,21 @@ class Game extends React.Component {
 		socket = new WebSocket("ws:"+server.adress+
 			"/game"+
 			"?userId="+this.state.userId+
-			"&tableId="+this.props.tableId);
+			"&tableId="+this.props.tableId+
+			"&size="+this.state.players.length);
 
 		socket.onmessage = event=>{
-
+			let item=JSON.parse(event.data)
+			console.log(item)
+			if(item.type==='roles'){
+				console.log(item.arr);
+				this.setState({
+					roles:item.arr
+				});
+			}
 		}
 
 		let gametable=database().ref('game/'+this.props.tableId);
-
-		if(this.props.admin) {
-			let players = this.state.players.length;
-			let roles = [];
-			let spy=rules[players].spy;
-
-			for(let i=0;i<spy;++i)
-				roles.push(0);
-
-			for(let i=0;i<players-spy;++i)
-				roles.push(1);
-
-			for(let i=0;i<roles.length;++i){
-				let ind=Math.floor(Math.random()*(i+1));
-				let copy=roles[ind];
-				roles[ind]=roles[i];
-				roles[i]=copy;
-			}
-
-			gametable.push({
-				type:'roles',
-				roles:roles
-			});
-		}
 
 		gametable.on('value', snapshot => {
 			let items=snapshot.val();
@@ -98,7 +82,7 @@ class Game extends React.Component {
 						Messages.add(key.key);
 				});
 				let eventshappend=this.state.eventshappend;
-				let roles=[];
+				let roles=this.state.roles;
 				let gameState=this.state.gameState;
 				let lastState=this.state.gameState;
 				let turn =this.state.turn;
