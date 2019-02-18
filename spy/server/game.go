@@ -12,7 +12,17 @@ import (
 )
 
 type Game struct {
-	Roles []int
+	Roles         []int
+	picker        int
+	turn          int
+	team          int
+	results       []int
+	players       []int64
+	voteAccept    []int64
+	voteReject    []int64
+	missionAccept []int64
+	missionReject []int64
+	playersConn   []*websocket.Conn
 }
 
 type GameEventArr struct {
@@ -23,15 +33,16 @@ type GameEventArr struct {
 var GameTables map[int64]*Game = make(map[int64]*Game)
 var GameMutex *sync.Mutex = &sync.Mutex{}
 
-func getGameReference(tableId int64, size int64) *Game {
+func getGameReference(tableId int64, size int64, userId int64, conn *websocket.Conn) *Game {
 	GameMutex.Lock()
 	defer GameMutex.Unlock()
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	game, ok := GameTables[tableId]
 	if ok {
+		game.players = append(game.players, userId)
+		game.playersConn = append(game.playersConn, conn)
 		return game
 	}
-	game = &Game{}
 	roles := make([]int, size)
 	spy := Rules[size].spy
 	for i := 0; i < spy; i++ {
@@ -46,7 +57,22 @@ func getGameReference(tableId int64, size int64) *Game {
 		roles[ind] = roles[i]
 		roles[i] = cop
 	}
-	game.Roles = roles
+	players := []int64{userId}
+	playersConn := []*websocket.Conn{conn}
+	game = &Game{
+		Roles:         roles,
+		picker:        0,
+		turn:          1,
+		team:          0,
+		results:       make([]int, 0),
+		players:       players,
+		voteAccept:    make([]int64, 0),
+		voteReject:    make([]int64, 0),
+		missionAccept: make([]int64, 0),
+		missionReject: make([]int64, 0),
+		playersConn:   playersConn,
+	}
+	GameTables[tableId] = game
 	return game
 }
 
@@ -55,6 +81,21 @@ func Send(conn *websocket.Conn, data []byte) {
 	if err != nil {
 		fmt.Println("cant send data:", err)
 	}
+}
+
+func SendToAll(conns []*websocket.Conn, data []byte) {
+	for _, conn := range conns {
+		go func(conn *websocket.Conn) {
+			err := conn.WriteMessage(1, data)
+			if err != nil {
+				fmt.Println("cant send data:", err)
+			}
+		}(conn)
+	}
+}
+
+func getMessage() {
+
 }
 
 func GameHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +125,7 @@ func GameHandler(w http.ResponseWriter, r *http.Request) {
 		r.Body.Close()
 	}()
 
-	game := getGameReference(tableId, size)
+	game := getGameReference(tableId, size, userId, conn)
 	fmt.Println("player connect:", userId, game)
 	roles, _ := json.Marshal(GameEventArr{
 		Type: "roles",

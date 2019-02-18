@@ -340,7 +340,14 @@ class Game extends React.Component {
 	}
 
 	handleSubmitMessage = (event) => {
-		let gametable=database().ref('game/'+this.props.tableId);
+		socket.send(JSON.stringify({
+			type:'message',
+			message:this.state.currentmessage,
+			turn:this.state.turn,
+			player:this.state.userId
+		}));
+
+		/*let gametable=database().ref('game/'+this.props.tableId);
 
 		if(this.state.currentmessage.length!==0){
 			gametable.push({
@@ -353,7 +360,7 @@ class Game extends React.Component {
 			this.setState({
 				currentmessage:''
 			});
-		}
+		}*/
 	}
 
 	handleInputChange = text => {
