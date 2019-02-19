@@ -6,7 +6,12 @@ import (
 	"net/http"
 )
 
+func MainHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Страницы игры Spy"))
+}
+
 func main() {
+	http.HandleFunc("/", MainHandler)
 	http.HandleFunc("/tables", TablesHandler)
 	http.HandleFunc("/waiters", WaitersHandler)
 	http.HandleFunc("/game", GameHandler)
