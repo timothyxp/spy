@@ -1,59 +1,22 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, AsyncStorage} from 'react-native';
 import Router from 'react-native-easy-router';
-import database from './src/firebase/firebase.js';
+import Auth from './src/components/Auth/auth.js';
+import Browse from './src/components/Browse/browse.js';
 import MainMenu from './src/components/MainMenu/mainmenu.js';
-import Settings from './src/components/Settings/settings.js';
-import GameMenu from './src/components/GameMenu/gamemenu.js';
-import TableWait from './src/components/Game/TableWait/tablewait.js';
-import GameVote from './src/components/Game/GameVote/gamevote.js';
-import Game from './src/components/Game/Game/game.js';
-import FinishGame from './src/components/Game/FinishGame/finishgame.js';
-
-const routes = {MainMenu, Settings, GameMenu, TableWait, Game, GameVote, FinishGame};
+const routes = {Auth, MainMenu, Browse};
 
 export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      userId:Math.floor(Math.random()*1e9)
-    }
-    database();
-  }
-
-  async GetId() {
-    try {
-      const value = await AsyncStorage.getItem('@spy:id');
-      return value;
-    } catch(error) {
-      console.log('Cant get ID:' + error);
-    }
-  }
-
-  async SetId(value) {
-    try {
-      await AsyncStorage.setItem('@spy:id', value);
-    } catch(error) {
-      console.log('Cant set ID:' + error);
-    }
-  }
-
-  componentDidMount() {
-    this.GetId()
-    .then(value=>{
-      if(value!==null){
-        this.setState({
-          userId:value
-        });
-      } else {
-        this.SetId(String(this.state.userId));
-      }
-    });
+      token:null
+    };
   }
 
   render() {
-      return (
-        <Router routes={routes} initialRoute="MainMenu"/>
-      );
+    return (
+      <Router routes={routes} initialRoute="Auth"/>
+    );
   }
 }

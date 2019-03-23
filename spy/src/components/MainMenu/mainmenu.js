@@ -1,58 +1,100 @@
+import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {Text, View, StyleSheet, TouchableOpacity, AsyncStorage} from 'react-native';
+import {styles} from "./mainmenustyle.js";
+import Button from '../Pure/Button/button.js';
 
-import {styles} from './mainmenustyle.js';
-
-class MainMenu extends React.Component {
-	constructor(){
-		super();
+export default class MainMenu extends React.Component{
+	constructor(props){
+		super(props);
 		this.state={
-			userId:0
+			token:this.props.token,
+			socket:this.props.socket,
+			concerts:[{
+				_id:"5c95ab56d589e13c609ddce1",
+				label:"Кай Метов",
+				date:"2019-03-23T16:00:00.000Z",
+				address:"Дворец культуры и техники имени И.И. Газа",
+				location:{"latitude":59.87866,"longitude":30.26288},
+				posterRef:'http://kek',
+				artistNames:['kek','cheburek','lol','arbidol']
+			},
+			{
+				_id:"5c95ab56d589e13c609ddce1",
+				label:"Кай Метов",
+				date:"2019-03-23T16:00:00.000Z",
+				address:"Дворец культуры и техники имени И.И. Газа",
+				location:{"latitude":59.87866,"longitude":30.26288},
+				posterRef:'http://kek',
+				artistNames:['kek','cheburek','lol','arbidol']
+			},
+			{
+				_id:"5c95ab56d589e13c609ddce1",
+				label:"Кай Метов",
+				date:"2019-03-23T16:00:00.000Z",
+				address:"Дворец культуры и техники имени И.И. Газа",
+				location:{"latitude":59.87866,"longitude":30.26288},
+				posterRef:'http://kek',
+				artistNames:['kek','cheburek','lol','arbidol']
+			},
+			{
+				_id:"5c95ab56d589e13c609ddce1",
+				label:"Кай Метов",
+				date:"2019-03-23T16:00:00.000Z",
+				address:"Дворец культуры и техники имени И.И. Газа",
+				location:{"latitude":59.87866,"longitude":30.26288},
+				posterRef:'http://kek',
+				artistNames:['kek','cheburek','lol','arbidol']
+			}],
 		};
 	}
 
-	async GetId() {
-    	try {
-    	  const value = await AsyncStorage.getItem('@spy:id');
-    	  return value;
-    	} catch(error) {
-    	  console.log('Cant get ID:' + error);
-		}
-  	}
+	componentDidMount() {
+		this.state.socket.on('concert',data=>{
+			this.setState({
+				concerts:data
+			});
+		})
+	}
 
-  	componentDidMount() {
-  		this.GetId()
-  		.then(value=>{
-  			this.setState({
-  				userId:value
-  			});
-  		});
-  	}
+	changeToBrowse = () => {
+		this.props.router.push.Browse({
+			socket:this.state.socket,
+			token:this.props.token,
+		});
+	}
 
-	render() {
-		return(
-			<View style={styles.MainMenu}>
-				<View style={styles.Content}>
-					<TouchableOpacity style={styles.button_Game}
-					onPress={()=>{this.props.router.push.GameMenu({
-						userId:this.state.userId
-					})}}>
-						<Text style={styles.Text_Game}>Game</Text>
+	render(){
+		return (
+			<View style={styles.Page}>
+				<View style={styles.Header}>
+					<TouchableOpacity onPress={() => this.changeToBrowse()} 
+					style={styles.BrowseButton}>
+						<Text style={styles.BrowseButtonText}>
+						Browse</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={styles.button}
-					onPress={()=>{this.props.router.push.Settings({})}}>
-						<Text style={styles.Text}>Settings</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={styles.button}>
-						<Text style={styles.Text}>Rules</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={styles.button}>
-						<Text style={styles.Text}>Any</Text>
-					</TouchableOpacity>
+				</View>
+				<View style={styles.Concerts}>
+					<ScrollView style={styles.ScrollView}>
+						{this.state.concerts.map((concert,index)=>{
+							return (
+								<View key={index} style={styles.Concert}>
+									<View style={styles.Icon}>
+
+									</View>
+									<View style={styles.Info}> 
+										<Text>{concert.label}</Text>
+										<Text>{concert.address}</Text>
+										<Text>{concert.date}</Text>
+										<View style={styles.ButtonHere}>
+										<Button><Text>Я тут</Text></Button>
+										</View>
+									</View>
+								</View>
+							);
+						})}
+					</ScrollView>
 				</View>
 			</View>
 		);
 	}
 }
-
-export default MainMenu;

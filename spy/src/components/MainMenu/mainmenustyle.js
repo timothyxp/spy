@@ -1,58 +1,67 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 
-import {Menu_Background,
-Menu_Text_Unusual_Color,
-Menu_Text_Usual_Color,
-Menu_Button_Unusual_Color,
-Menu_Button_Usual_Color,
-Menu_Button_Border_Unusual_Color,
-Menu_Button_Border_Usual_Color,
-Menu_Button_Width,
-Menu_Button_Heigth,
-Menu_Button_Border_Width,
-Menu_Button_Border_Radius,
-Menu_Content_Height,
-Menu_Text_Size} from '../../styles/common.js';
+const Screen_Width = Dimensions.get('window').width;
+
+const Icon_Width = 200;
 
 export const styles=StyleSheet.create({
-	MainMenu:{
-		flex:1,
-		backgroundColor: Menu_Background,
-		alignItems:'center',
-		justifyContent:'center'
+	Page:{
+		flexDirection: 'column',
+		flex: 1,
 	},
-	Content:{
-		height:Menu_Content_Height,
-		justifyContent:'space-around'
+	BrowseButtonText:{
+		fontSize: 26,
+		color:'blue',
+		textDecorationLine: 'underline',
 	},
-	button:{
-		width:Menu_Button_Width,
-		height:Menu_Button_Heigth,
-		alignItems:'center',
-		backgroundColor:Menu_Button_Usual_Color,
-		justifyContent:'center',
-		borderStyle:'solid',
-		borderWidth:Menu_Button_Border_Width,
-		borderColor:Menu_Button_Border_Usual_Color,
-		borderRadius:Menu_Button_Border_Radius
+	Header:{
+		flexGrow:1,
+		flex: 1,
+		width: Screen_Width,
+		backgroundColor: 'red',
+		borderBottomWidth: 2,
+		borderBottomColor: 'black',
+		borderStyle: 'solid',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
-	button_Game:{
-		width:Menu_Button_Width,
-		height:Menu_Button_Heigth,
-		alignItems:'center',
-		backgroundColor:Menu_Button_Unusual_Color,
-		justifyContent:'center',
-		borderStyle:'solid',
-		borderWidth:Menu_Button_Border_Width,
-		borderColor:Menu_Button_Border_Unusual_Color,
-		borderRadius:Menu_Button_Border_Radius
+	HeaderText:{
+		color: 'black',
+		fontSize: 20,
 	},
-	Text_Game:{
-		color:Menu_Text_Unusual_Color,
-		fontSize: Menu_Text_Size
+	Concerts:{
+		flexGrow:9,
+		flex: 1,
+		width:Screen_Width,
+		backgroundColor: 'green',
+		alignItems: 'center'
 	},
-	Text:{
-		color:Menu_Text_Usual_Color,
-		fontSize: Menu_Text_Size
+	ScrollView:{
+		backgroundColor: 'white',
+		width:Screen_Width,
+	},
+	Concert:{
+		width: Screen_Width,
+		height: 250,
+		borderBottomWidth: 1,
+		borderBottomColor: 'white',
+		borderStyle: 'solid',
+		flexDirection: 'row',
+	},
+	Icon:{
+		width:Icon_Width,
+		height:249,
+		backgroundColor: 'black',
+	},
+	Info:{
+		width:Screen_Width-Icon_Width,
+		flex: 1,
+		backgroundColor: 'purple',
+		alignItems: 'center',
+		justifyContent: 'space-around',
+	},
+	ButtonHere:{
+		height:50,
+		width: 120,
 	}
 });

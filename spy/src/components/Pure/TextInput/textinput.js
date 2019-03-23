@@ -1,14 +1,6 @@
 import React from 'react';
 import {TextInput, StyleSheet} from 'react-native';
 
-import {TextInput_Height,
-TextInput_BorderWidth,
-TextInput_BorderColor,
-TextInput_BorderRadius,
-TextInput_BackgroundColor,
-TextInput_PaddingLeft,
-TextInput_PaddingRight} from '../../../styles/common.js';
-
 class Input extends React.Component {
 	render() {
 		return(
@@ -33,14 +25,16 @@ Input.defaultProps={
 
 const styles=StyleSheet.create({
 	TextInput:{
-		height:TextInput_Height,
-		backgroundColor: TextInput_BackgroundColor,
-		borderTopWidth: TextInput_BorderWidth,
-		borderTopColor: TextInput_BorderColor,
+		height:50,
+		width: 150,
+		backgroundColor: 'red',
+		borderWidth: 2,
+		borderColor: 'black',
 		borderStyle: 'solid',
-		borderBottomLeftRadius: TextInput_BorderRadius,
-		borderBottomRightRadius: TextInput_BorderRadius,
-		paddingLeft: TextInput_PaddingLeft,
-		paddingRight: TextInput_PaddingRight,
+		borderRadius: 10,
+		paddingLeft: 10,
+		paddingRight: 10,
+		justifyContent: 'center',
+		alignItems: 'center'
 	}
 });
